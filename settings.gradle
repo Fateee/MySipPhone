@@ -1,0 +1,3 @@
+include ':contact'
+include ':app'
+rootProject.name = "SipPhone"

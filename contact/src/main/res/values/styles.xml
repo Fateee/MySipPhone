@@ -1,0 +1,37 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Light">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+    <declare-styleable name="SimpleCornerTextView">
+        <attr name="bgColor" format="color"/>
+        <attr name="borderColor" format="color"/>
+        <attr name="borderWidth" format="dimension"/>
+        <attr name="bottomRightRadius" format="dimension"/>
+        <attr name="bottomLeftRadius" format="dimension"/>
+        <attr name="topRightRadius" format="dimension"/>
+        <attr name="topLeftRadius" format="dimension"/>
+        <attr name="radius" format="dimension"/>
+        <attr name="drawableWidth_left" format="dimension" />
+        <attr name="drawableHeight_left" format="dimension" />
+        <attr name="drawableWidth_top" format="dimension" />
+        <attr name="drawableHeight_top" format="dimension" />
+        <attr name="drawableWidth_right" format="dimension" />
+        <attr name="drawableHeight_right" format="dimension" />
+        <attr name="drawableWidth_bottom" format="dimension" />
+        <attr name="drawableHeight_bottom" format="dimension" />
+    </declare-styleable>
+</resources>
