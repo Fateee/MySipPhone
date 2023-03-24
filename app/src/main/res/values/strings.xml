@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SipPhone</string>
+    <string name="app_name">云闪通</string>
     <string name="title_dialer">电话</string>
     <string name="title_contact">联系人</string>
     <string name="title_notifications">Notifications</string>

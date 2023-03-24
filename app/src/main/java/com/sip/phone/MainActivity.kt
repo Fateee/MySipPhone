@@ -2,12 +2,9 @@ package com.sip.phone
 
 import android.app.Activity
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
-import android.os.Bundle
 import android.provider.ContactsContract
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -15,11 +12,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.sip.phone.ui.base.BaseActivity
 import com.sip.phone.ui.home.HomeFragment
 import com.sip.phone.util.ToastUtil
-import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     companion object{
         const val PICK_CONTACT_REQUEST: Int = 777
@@ -27,9 +24,9 @@ class MainActivity : AppCompatActivity() {
     }
     private lateinit var navController : NavController
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+    override fun getLayoutId() = R.layout.activity_main
+
+    override fun initPages() {
         hideActionBar()
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
@@ -41,24 +38,6 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setupWithNavController(navController)
-
-
-//        pickContact?.setOnClickListener {
-//            // 创建 Intent，指定联系人选择器的操作
-//            val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-//
-//            // 启动联系人选择器 Activity，并等待用户选择联系人
-//            startActivityForResult(intent, PICK_CONTACT_REQUEST)
-//        }
-//        sendPhone?.setOnClickListener {
-//            // 创建 Intent，指定拨号动作，并设置电话号码
-//            // 创建 Intent，指定拨号动作，并设置电话号码
-//            val phoneNumberUri = Uri.parse("tel:")
-//            val dialIntent = Intent(Intent.ACTION_DIAL, phoneNumberUri)
-//            // 启动拨号应用程序，并等待用户输入电话号码
-//            startActivityForResult(dialIntent, DIAL_PHONE_REQUEST);
-//        }
-//        Toast.makeText(this,"测试一下toast大小如何",Toast.LENGTH_SHORT).show()
     }
 
     private fun hideActionBar() {
@@ -145,4 +124,27 @@ class MainActivity : AppCompatActivity() {
         return ret
     }
 
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_main)
+//
+//
+//
+////        pickContact?.setOnClickListener {
+////            // 创建 Intent，指定联系人选择器的操作
+////            val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+////
+////            // 启动联系人选择器 Activity，并等待用户选择联系人
+////            startActivityForResult(intent, PICK_CONTACT_REQUEST)
+////        }
+////        sendPhone?.setOnClickListener {
+////            // 创建 Intent，指定拨号动作，并设置电话号码
+////            // 创建 Intent，指定拨号动作，并设置电话号码
+////            val phoneNumberUri = Uri.parse("tel:")
+////            val dialIntent = Intent(Intent.ACTION_DIAL, phoneNumberUri)
+////            // 启动拨号应用程序，并等待用户输入电话号码
+////            startActivityForResult(dialIntent, DIAL_PHONE_REQUEST);
+////        }
+////        Toast.makeText(this,"测试一下toast大小如何",Toast.LENGTH_SHORT).show()
+//    }
 }
