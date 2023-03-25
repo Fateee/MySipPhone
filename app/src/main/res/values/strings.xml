@@ -31,4 +31,6 @@
     <string name="get_verify_code">获取验证码</string>
     <string name="login_please_input_verify_code">请输入验证码</string>
     <string name="login_button_text">登录</string>
+    <string name="not_open_permission">权限未开启</string>
+    <string name="open_overlays_tip">为保证拨号和接听的正常使用，请打开悬浮窗权限</string>
 </resources>

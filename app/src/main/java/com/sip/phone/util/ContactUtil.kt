@@ -48,23 +48,23 @@ object ContactUtil {
 
     data class ContactInfo(val displayName: String, val photoUri: String?)
 
-//    fun getContentCallLog(mContext: Context?, number: String?, callBack: Callback?) {
-//        ThreadManager.get().execute {
-//            val contentCallLog = getContentCallLog(mContext, number)
-//            callFinish(contentCallLog, callBack)
-//        }
-//    }
-//
-//    private fun callFinish(log: ContactUtil.ContactInfo?, callBack: Callback?) {
-//        if (callBack == null) {
-//            return
-//        }
-//        if (Looper.myLooper() == Looper.getMainLooper()) {
-//            callBack.onFinish(log)
-//            return
-//        }
-//        ThreadUtil.runOnMainThread { callBack.onFinish(log) }
-//    }
+    fun getContentCallLog(mContext: Context?, number: String?, callBack: Callback?) {
+        ThreadManager.get().execute {
+            val contentCallLog = getContentCallLog(mContext, number)
+            callFinish(contentCallLog, callBack)
+        }
+    }
+
+    private fun callFinish(log: ContactUtil.ContactInfo?, callBack: Callback?) {
+        if (callBack == null) {
+            return
+        }
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            callBack.onFinish(log)
+            return
+        }
+        ThreadUtil.runOnMainThread { callBack.onFinish(log) }
+    }
 
     interface Callback {
         fun onFinish(contentCallLog: ContactUtil.ContactInfo?)

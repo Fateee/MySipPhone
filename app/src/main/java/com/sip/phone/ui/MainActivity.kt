@@ -22,6 +22,7 @@ import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
 import com.sip.phone.ui.home.HomeFragment
 import com.sip.phone.ui.login.LoginActivity
+import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
 import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
@@ -53,7 +54,7 @@ class MainActivity : BaseActivity() {
         if (!hasNumber) {
 //            LoginActivity.startActivity()
             finish()
-        } 
+        }
 //        else {
 //            //直接执行登录流程
 //            SdkUtil.initAndBindLoginFlow(phoneCached!!)
@@ -74,6 +75,7 @@ class MainActivity : BaseActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setupWithNavController(navController)
+        OverlayUtil.initOverlayPermission(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

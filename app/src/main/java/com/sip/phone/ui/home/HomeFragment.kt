@@ -56,9 +56,8 @@ class HomeFragment : Fragment() {
 
             override fun onCall(phone: String) {
                 if (!isCallOuting) {
-
+                    makeACall(phone)
                 }
-                makeACall(phone)
             }
 
             override fun onSetting() {}

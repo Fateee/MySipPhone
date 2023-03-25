@@ -1,9 +1,12 @@
 package com.sip.phone.sdk
 
+import android.text.InputFilter
 import android.text.TextUtils
 import android.util.Log
+import com.easycalltech.ecsdk.EcSipLib
 import com.easycalltech.ecsdk.business.location.LocationResult
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
+import com.easycalltech.ecsdk.event.CallComingEvent
 import com.ec.encrypt.Base64
 import com.ec.encrypt.DataUtils
 import com.ec.encrypt.RSAEncrypt
@@ -11,6 +14,7 @@ import com.ec.net.LocalConstant
 import com.ec.net.entity.BaseResponse
 import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
+import com.ec.utils.SipAudioManager
 import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
 import com.sip.phone.ui.MainActivity
@@ -189,4 +193,36 @@ object SdkUtil {
         }
     }
 
+    private var mCallComingEvent: CallComingEvent? = null
+    /**
+     * 接听
+     */
+    private var isAnswer = false;
+    fun answer(callComingEvent: CallComingEvent?) {
+        mCallComingEvent = callComingEvent
+        if (mCallComingEvent == null) return
+        //停止振铃
+        SipAudioManager.getInstance().stopRingtone()
+//        callViewGone(imageInputCall)
+
+        EcSipLib.getInstance(MainApplication.app).answerCall(mCallComingEvent!!.callID)
+
+//        startVoiceTime = System.currentTimeMillis()
+//        getInCall(v)
+        isAnswer = true;
+    }
+
+    //是否是主动拒听
+    private var isDecline = false
+    /**
+     * 拒接
+     */
+    fun reject(callId :Int?, decline : Boolean) {
+        //停止振铃
+        SipAudioManager.getInstance().stopRingtone()
+        isDecline = decline
+        isAnswer = false
+        callId?.let { EcSipLib.getInstance(MainApplication.app).rejectCall(it) }
+        mCallComingEvent = null
+    }
 }

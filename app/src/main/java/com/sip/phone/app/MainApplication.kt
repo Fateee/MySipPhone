@@ -7,11 +7,17 @@ import android.os.Bundle
 import android.util.Log
 import com.easycalltech.ecsdk.business.location.LocationResult
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
+import com.easycalltech.ecsdk.event.CallComingEvent
+import com.easycalltech.ecsdk.event.CallDisconnectEvent
 import com.ec.utils.MMKVUtil
+import com.ec.utils.SipAudioManager
+import com.sip.phone.call.InCallWindowManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.ui.login.LoginActivity
+import com.sip.phone.util.OverlayUtil
+import com.sip.phone.util.ToastUtil
 import com.tencent.mmkv.MMKV
 import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
@@ -22,7 +28,9 @@ import me.jessyan.autosize.onAdaptListener
 
 class MainApplication : Application() {
     private val TAG = "MainApplication_hy"
+
     var top_activity: Activity? = null
+    private var event: CallComingEvent? = null;
 
     override fun onCreate() {
         super.onCreate()
@@ -34,6 +42,7 @@ class MainApplication : Application() {
         MMKV.initialize(this)
         initAutoSize()
         beforeSetContent()
+        SipAudioManager.getInstance().initialise(this)
     }
 
     private fun initAutoSize() {
@@ -64,19 +73,13 @@ class MainApplication : Application() {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
                 top_activity = activity
             }
-
-            override fun onActivityStarted(activity: Activity) {}
-
             override fun onActivityResumed(activity: Activity) {
                 top_activity = activity
             }
-
+            override fun onActivityStarted(activity: Activity) {}
             override fun onActivityPaused(activity: Activity) {}
-
             override fun onActivityStopped(activity: Activity) {}
-
             override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-
             override fun onActivityDestroyed(activity: Activity) {}
         })
     }
@@ -114,6 +117,49 @@ class MainApplication : Application() {
     fun locationResult(event: LocationResult) {
         Log.i(TAG, "### locationResult $event")
         SdkUtil.register(event)
+    }
+
+    @EventBusSub(tag = "CallComingEvent")
+    fun callComing(event: CallComingEvent) {
+        Log.d(TAG, "### 呼叫振铃消息 : " + ", AccountID: " + event.accountID + ", getDisplayName: " + event.displayName + ", getCallID: " + event.callID)
+        this.event = event;
+        SipAudioManager.getInstance().startRingtone()
+        if (OverlayUtil.initOverlayPermission(this)) {
+            val newEvent = CallComingEvent(
+                event.accountID,
+                event.callID,
+                event.displayName?.substringBefore("@")
+            )
+            InCallWindowManager.instance.show(newEvent)
+//            showFloatingView(newEvent)
+        }
+
+//        /**
+//         *  app 在前台 直接跳转接听 页、 否则判断 权限 然后 弹出
+//         */
+//        if (AContext.isRunningForeground(this)) {
+//            val voiceActivityIntent = Intent(this, CallInActivity::class.java)
+////        voiceActivityIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//            voiceActivityIntent.putExtra("callData", event)
+//            startActivity(voiceActivityIntent)
+//        } else {
+//            if (FloatingWindowHelper.canDrawOverlays(this, true)) {
+//                val newEvent = CallComingEvent(
+//                    event.accountID,
+//                    event.callID,
+//                    event.displayName?.substringBefore("@")
+//                )
+//                showFloatingView(newEvent)
+//            }
+//        }
+    }
+
+    @EventBusSub(tag = "CallDisconnectEvent")
+    fun callDisconnect(event: CallDisconnectEvent) {
+        Log.d(TAG, "### 呼叫断开消息 " + event.callID)
+        SdkUtil.reject(event.callID,false)
+        InCallWindowManager.instance.dismiss()
+        ToastUtil.showDebug("呼叫已断开")
     }
 
     override fun onTerminate() {
