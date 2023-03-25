@@ -10,6 +10,7 @@ import com.easycalltech.ecsdk.EcSipLib
 import com.ec.utils.SipAudioManager
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.view.DialView
 import kotlinx.android.synthetic.main.fragment_home.*
 
@@ -19,13 +20,6 @@ class HomeFragment : Fragment() {
 //    private val PICK_CONTACT_REQUEST: Int = 666
 //
 //    private lateinit var homeViewModel: HomeViewModel
-    private val scAudio: SipAudioManager = SipAudioManager.getInstance()
-    private var ecsdk: EcSipLib? = null
-    private var isCallOuting = false; //是否正在呼出
-    //是否静音
-    private var isMicOff = false
-    //是否扩音器
-    private var isVolumeOpen = false
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -54,25 +48,14 @@ class HomeFragment : Fragment() {
         dialView?.setDialViewListener(object : DialView.DialViewListener {
             override fun inputChange() {}
 
-            override fun onCall(phone: String) {
-                if (!isCallOuting) {
-                    makeACall(phone)
-                }
+            override fun onCall(phone: String, name : String) {
+                SdkUtil.makeCall(phone, name)
             }
 
             override fun onSetting() {}
 
             override fun onLongEvent(number: String?) {}
         })
-    }
-
-    private fun makeACall(phoneNumber: String) {
-        scAudio.initialise(context)
-        scAudio.muteMicrophone(isMicOff)
-        scAudio.setSpeakerMode(isVolumeOpen)
-        ecsdk = EcSipLib.getInstance(MainApplication.app)
-        ecsdk?.makeCall(phoneNumber)
-        isCallOuting = true;
     }
 
     fun setContactInfo(ret: Array<String?>) {

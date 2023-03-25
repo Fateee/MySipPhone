@@ -8,13 +8,13 @@ import android.util.Log
 import com.easycalltech.ecsdk.business.location.LocationResult
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
 import com.easycalltech.ecsdk.event.CallComingEvent
+import com.easycalltech.ecsdk.event.CallConfirmedEvent
 import com.easycalltech.ecsdk.event.CallDisconnectEvent
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
-import com.sip.phone.call.InCallWindowManager
+import com.sip.phone.call.incall.InCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
-import com.sip.phone.ui.MainActivity
 import com.sip.phone.ui.login.LoginActivity
 import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
@@ -119,6 +119,9 @@ class MainApplication : Application() {
         SdkUtil.register(event)
     }
 
+    /**
+     * 来电了
+     */
     @EventBusSub(tag = "CallComingEvent")
     fun callComing(event: CallComingEvent) {
         Log.d(TAG, "### 呼叫振铃消息 : " + ", AccountID: " + event.accountID + ", getDisplayName: " + event.displayName + ", getCallID: " + event.callID)
@@ -130,7 +133,7 @@ class MainApplication : Application() {
                 event.callID,
                 event.displayName?.substringBefore("@")
             )
-            InCallWindowManager.instance.show(newEvent)
+            InCallFloatManager.instance.show(newEvent)
 //            showFloatingView(newEvent)
         }
 
@@ -154,12 +157,26 @@ class MainApplication : Application() {
 //        }
     }
 
+    /**
+     * 对方挂断or无人接听
+     */
     @EventBusSub(tag = "CallDisconnectEvent")
     fun callDisconnect(event: CallDisconnectEvent) {
         Log.d(TAG, "### 呼叫断开消息 " + event.callID)
         SdkUtil.reject(event.callID,false)
-        InCallWindowManager.instance.dismiss()
-        ToastUtil.showDebug("呼叫已断开")
+        InCallFloatManager.instance.dismiss()
+//        ToastUtil.showDebug("呼叫已断开")
+    }
+
+    /**
+     * 对方接听了电话
+     */
+    @EventBusSub(tag = "CallConfirmedEvent")
+    fun callConfirmed(event: CallConfirmedEvent) {
+        Log.d(TAG, "### 呼叫通话消息 " + event.callID)
+//        callId = event.callID
+//        getCall()
+        //todo hy 显示通话中界面
     }
 
     override fun onTerminate() {

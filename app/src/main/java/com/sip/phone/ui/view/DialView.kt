@@ -86,7 +86,7 @@ class DialView @JvmOverloads constructor(
         /**
          * 点击拨号按键
          */
-        fun onCall(phone: String)
+        fun onCall(phone: String,name: String)
 
         /**
          * 点击设置按键
@@ -164,9 +164,10 @@ class DialView @JvmOverloads constructor(
     }
 
     fun onCall(view: View?) {
-        val phone = mDialpadInput?.text.toString().trim()
+        val phone = mDialpadInput?.text?.toString()?.trim()?:""
+        val name = tv_name?.text?.toString()?.trim()?:"未知"
         if (mDialViewListener != null && phone.isNotEmpty()) {
-            mDialViewListener!!.onCall(phone)
+            mDialViewListener!!.onCall(phone,name)
         }
     }
 

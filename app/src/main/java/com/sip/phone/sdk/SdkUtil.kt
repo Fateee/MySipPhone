@@ -16,6 +16,7 @@ import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
 import com.sip.phone.app.MainApplication
+import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.util.ToastUtil
@@ -24,6 +25,12 @@ object SdkUtil {
     private const val TAG = "SdkUtil_hy"
     private var isOnceStartMainActivity = true;
     var doMain = "sc.vopbx.dict.cn"
+
+    private var isCallOuting = false; //是否正在呼出
+    //是否静音
+    private var isMicOff = false
+    //是否扩音器
+    private var isVolumeOpen = false
 
     private fun getSignature(phone : String, channel : String = "cannelA", timestamp : Long = System.currentTimeMillis()): String? {
 //        val timestamp = System.currentTimeMillis()
@@ -224,5 +231,30 @@ object SdkUtil {
         isAnswer = false
         callId?.let { EcSipLib.getInstance(MainApplication.app).rejectCall(it) }
         mCallComingEvent = null
+        isCallOuting = false
+    }
+
+    /*** 呼出*****/
+
+    fun makeCall(phone: String, name : String) {
+        if (!isCallOuting) {
+            makeACall(phone)
+            OutCallFloatManager.instance.show(phone,name)
+        }
+    }
+
+    private fun makeACall(phoneNumber: String) {
+        SipAudioManager.getInstance().muteMicrophone(isMicOff)
+        SipAudioManager.getInstance().setSpeakerMode(isVolumeOpen)
+        EcSipLib.getInstance(MainApplication.app)?.makeCall(phoneNumber)
+        isCallOuting = true;
+    }
+
+    //自己挂断
+    fun hangup() {
+        isCallOuting = false
+        if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
+            Log.i(TAG, "endCall 电话挂断")
+        }
     }
 }
