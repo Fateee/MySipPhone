@@ -1,43 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <!-- deny cleartext traffic for React Native packager ips in release -->
+<network-security-config xmlns:tools="http://schemas.android.com/tools">
+    <!--base-config cleartextTrafficPermitted="false"/ all permitted-->
+    <!--    <domain-config tools:ignore="NetworkSecurityConfig">-->
+    <!--        <base-config cleartextTrafficPermitted="true" />-->
+    <!--    </domain-config>-->
     <base-config cleartextTrafficPermitted="true" />
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="false">localhost</domain>
-        <domain includeSubdomains="false">10.0.2.2</domain>
-        <domain includeSubdomains="false">10.0.3.2</domain>
-<!--        <domain includeSubdomains="true">i.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">is.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">pangolin.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">extlog.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">sf3-ttcdn-tos.pstatp.com</domain>-->
-<!--        <domain includeSubdomains="true">bds.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">dig.bdurl.net</domain>-->
-
-
-<!--        <domain includeSubdomains="true">api-access.pangolin-sdk-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">sf1-fe-tos.pglstatp-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">sf1-be-pack.pglstatp-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">sf3-fe-tos.pglstatp-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">log-api.pangolin-sdk-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">s3-fe-scm.pglstatp-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">s3a.pstatp.com</domain>-->
-
-<!--        <domain includeSubdomains="true">api-access.pangolin-sdk-toutiao-b.com</domain>-->
-<!--        <domain includeSubdomains="true">log-api.pangolin-sdk-toutiao-b.com</domain>-->
-<!--        <domain includeSubdomains="true">dm.pstatp.com</domain>-->
-
-
-<!--        <domain includeSubdomains="true">toblog.ctobsnssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">sdfp.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">tosv.byted.org</domain>-->
-<!--        <domain includeSubdomains="true">sf1-ttcdn-tos.pstatp.com</domain>-->
-<!--        <domain includeSubdomains="true">sf6-fe-tos.pglstatp-toutiao.com</domain>-->
-<!--        <domain includeSubdomains="true">log.snssdk.com</domain>-->
-<!--        <domain includeSubdomains="true">tosv.boe.byted.org</domain>-->
-<!--        <trust-anchors>-->
-<!--            <certificates src="user" />//信任用户自己安装的证书-->
-<!--            <certificates src="system" />-->
-<!--        </trust-anchors>-->
-    </domain-config>
+    <!--    <domain-config cleartextTrafficPermitted="true">-->
+    <!--        <domain includeSubdomains="true">127.0.0.1</domain>&lt;!&ndash;just permitted 127.0.0.1&ndash;&gt;-->
+    <!--        <domain includeSubdomains="true">localhost</domain>-->
+    <!--        <domain includeSubdomains="true">101.34.71.170</domain>-->
+    <!--        <domain includeSubdomains="true">218.78.0.205</domain>-->
+    <!--&lt;!&ndash;        &ndash;&gt;-->
+    <!--        <domain includeSubdomains="true">118.122.231.25</domain>-->
+    <!--        <domain includeSubdomains="true">118.122.231.26</domain>-->
+    <!--        <domain includeSubdomains="true">118.122.231.27</domain>-->
+    <!--        <domain includeSubdomains="true">118.122.231.29</domain>-->
+    <!--    </domain-config>-->
 </network-security-config>

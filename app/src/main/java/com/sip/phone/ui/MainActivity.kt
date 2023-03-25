@@ -1,4 +1,4 @@
-package com.sip.phone
+package com.sip.phone.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -11,23 +11,59 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.easycalltech.ecsdk.business.location.LocationResult
+import com.easycalltech.ecsdk.event.AccountRegisterEvent
+import com.ec.utils.MMKVUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.sip.phone.R
+import com.sip.phone.app.MainApplication
+import com.sip.phone.constant.Constants
+import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
 import com.sip.phone.ui.home.HomeFragment
+import com.sip.phone.ui.login.LoginActivity
 import com.sip.phone.util.ToastUtil
+import com.yushi.eventannotations.EventBusSub
+import com.yushi.eventbustag.EventBusTag
 
 class MainActivity : BaseActivity() {
-
+    private val TAG = "MainActivity_hy"
     companion object{
+        fun startActivity(event: AccountRegisterEvent? = null) {
+            val intent = Intent(MainApplication.app, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("callData", event)
+//                intent.putExtra("staffNo", extNo)
+            MainApplication.app?.startActivity(intent)
+        }
+
         const val PICK_CONTACT_REQUEST: Int = 777
         const val DIAL_PHONE_REQUEST: Int = 555
     }
     private lateinit var navController : NavController
 
+    override fun beforeSetContent(): Boolean {
+        val mCallComingEvent : AccountRegisterEvent? = intent?.getParcelableExtra("callData")
+        Log.i(TAG,"mCallComingEvent $mCallComingEvent")
+        if (mCallComingEvent != null) return true
+//        MMKVUtil.encode(Constants.PHONE,"")
+        val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
+        val hasNumber = !phoneCached.isNullOrEmpty()
+        Log.i(TAG,"phoneCached $phoneCached hasNumber $hasNumber")
+        if (!hasNumber) {
+//            LoginActivity.startActivity()
+            finish()
+        } 
+//        else {
+//            //直接执行登录流程
+//            SdkUtil.initAndBindLoginFlow(phoneCached!!)
+//        }
+        return hasNumber
+    }
+
     override fun getLayoutId() = R.layout.activity_main
 
     override fun initPages() {
-        hideActionBar()
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         navController = findNavController(R.id.nav_host_fragment)
@@ -38,11 +74,6 @@ class MainActivity : BaseActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setupWithNavController(navController)
-    }
-
-    private fun hideActionBar() {
-        actionBar?.hide()
-        supportActionBar?.hide()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

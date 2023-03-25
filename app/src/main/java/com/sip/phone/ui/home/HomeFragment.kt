@@ -1,36 +1,39 @@
 package com.sip.phone.ui.home
 
-import android.app.Activity.RESULT_OK
-import android.content.Intent
-import android.database.Cursor
-import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.easycalltech.ecsdk.EcSipLib
+import com.ec.utils.SipAudioManager
 import com.sip.phone.R
+import com.sip.phone.app.MainApplication
+import com.sip.phone.ui.view.DialView
 import kotlinx.android.synthetic.main.fragment_home.*
 
 
 class HomeFragment : Fragment() {
 
-    private val PICK_CONTACT_REQUEST: Int = 666
-
-    private lateinit var homeViewModel: HomeViewModel
+//    private val PICK_CONTACT_REQUEST: Int = 666
+//
+//    private lateinit var homeViewModel: HomeViewModel
+    private val scAudio: SipAudioManager = SipAudioManager.getInstance()
+    private var ecsdk: EcSipLib? = null
+    private var isCallOuting = false; //是否正在呼出
+    //是否静音
+    private var isMicOff = false
+    //是否扩音器
+    private var isVolumeOpen = false
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_home, container, false)
+//        homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        return inflater.inflate(R.layout.fragment_home, container, false)
 //        val textView: TextView = root.findViewById(R.id.text_home)
 //        homeViewModel.text.observe(viewLifecycleOwner, Observer {
 //            textView.text = it
@@ -42,7 +45,35 @@ class HomeFragment : Fragment() {
 //            // 启动联系人选择器 Activity，并等待用户选择联系人
 //            activity?.startActivityForResult(intent, PICK_CONTACT_REQUEST)
 //        }
-        return root
+//        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        dialView?.setDialViewListener(object : DialView.DialViewListener {
+            override fun inputChange() {}
+
+            override fun onCall(phone: String) {
+                if (!isCallOuting) {
+
+                }
+                makeACall(phone)
+            }
+
+            override fun onSetting() {}
+
+            override fun onLongEvent(number: String?) {}
+        })
+    }
+
+    private fun makeACall(phoneNumber: String) {
+        scAudio.initialise(context)
+        scAudio.muteMicrophone(isMicOff)
+        scAudio.setSpeakerMode(isVolumeOpen)
+        ecsdk = EcSipLib.getInstance(MainApplication.app)
+        ecsdk?.makeCall(phoneNumber)
+        isCallOuting = true;
     }
 
     fun setContactInfo(ret: Array<String?>) {

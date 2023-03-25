@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -18,12 +19,45 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        androidcall {
+            keyAlias KEY_ALIAS
+            keyPassword KEY_PASSWORD
+            storeFile file("app.keystore")
+            storePassword KEYSTORE_PASSWORD
+        }
+        debug {
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+        release {
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable false
+            buildConfigField ("boolean", "MY_DEBUG", "false")
+            signingConfig signingConfigs.androidcall
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            buildConfigField ("boolean", "MY_DEBUG", "true")
+            signingConfig signingConfigs.androidcall
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+//    buildTypes {
+//        release {
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
+//    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -35,6 +69,9 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
+    }
+    buildFeatures{
+        dataBinding = true
     }
 }
 
@@ -50,12 +87,41 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'me.jessyan:autosize:1.2.1'
-    api 'com.tencent:mmkv-static:1.2.11'
+
     implementation project(path: ':contact')
 //    testImplementation 'junit:junit:4.+'
 //    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
 //    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+
+    api 'com.tencent:mmkv-static:1.2.11'
     implementation files('libs/ECSDK_v1.0.8.aar')
     implementation files('libs/ecphone-lib-release.aar')
+    //引入一下依赖先使用，下个版本中去除Dagger
+    def roomVersion = "2.2.6"
+    //引入Room依赖
+    implementation "androidx.room:room-runtime:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    //引入dagger依赖
+    implementation 'com.google.dagger:dagger:2.42'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.28'
+
+//    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+//    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+//    implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
+//    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+//    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.1'
+//    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+//    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
+//    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.12'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.1.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
 }

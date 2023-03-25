@@ -11,9 +11,15 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(getLayoutId())
+        hideActionBar()
         setImmersiveBar(false)
+        if (!beforeSetContent()) return
+        setContentView(getLayoutId())
         initPages()
+    }
+
+    open fun beforeSetContent(): Boolean {
+        return true
     }
     abstract fun getLayoutId(): Int
     abstract fun initPages()
@@ -21,30 +27,21 @@ abstract class BaseActivity : AppCompatActivity() {
      * 设置侵入式bar
      */
     fun setImmersiveBar(isFullScreen: Boolean) {
-        if (!isSetImmersiveBar) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val window = window
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
-                val decorView = window.decorView
-                //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
-                var option = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                if (isFullScreen || isFullScreen) {
-                    option = option or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isShowBlackFont) {
-                    option = option or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                }
-                decorView.systemUiVisibility = option
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.statusBarColor = if (isWhiteStatusBar) Color.WHITE else Color.TRANSPARENT
-            } else {
-                val attributes = window.attributes
-                val flagTranslucentStatus = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                attributes.flags = attributes.flags or flagTranslucentStatus
-                window.attributes = attributes
-            }
+        if (!isSetImmersiveBar()) return
+        val window = window
+        //5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色
+        val decorView = window.decorView
+        //两个 flag 要结合使用，表示让应用的主体内容占用系统状态栏的空间
+        var option = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        if (isFullScreen() || isFullScreen) {
+            option = option or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && isShowBlackFont()) {
+            option = option or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+        decorView.systemUiVisibility = option
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = if (isWhiteStatusBar()) Color.WHITE else Color.TRANSPARENT
         //        if (isFullScreen() || isFullScreen) {
 //            setRootViewPadTop(getStatusBarHeight());
 //        } else {
@@ -57,29 +54,38 @@ abstract class BaseActivity : AppCompatActivity() {
      *
      * @return
      */
-    val isSetImmersiveBar: Boolean
-        get() = true
+    open fun isSetImmersiveBar(): Boolean {
+        return true
+    }
 
     /**
      * 是否是全屏
      * @return
      */
-    val isFullScreen: Boolean
-        get() = false
+    open fun isFullScreen(): Boolean {
+        return false
+    }
 
     /**
      * 是否显示黑色字体
      *
      * @return
      */
-    val isShowBlackFont: Boolean
-        get() = true
+    open fun isShowBlackFont(): Boolean {
+        return true
+    }
 
     /**
      * 是否显示百色状态栏
      *
      * @return
      */
-    val isWhiteStatusBar: Boolean
-        get() = true
+    open fun isWhiteStatusBar(): Boolean {
+        return true
+    }
+
+    private fun hideActionBar() {
+        actionBar?.hide()
+        supportActionBar?.hide()
+    }
 }

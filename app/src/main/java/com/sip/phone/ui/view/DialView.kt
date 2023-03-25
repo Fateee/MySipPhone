@@ -15,11 +15,10 @@ import android.widget.EditText
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
-import com.sip.phone.MainActivity
 import com.sip.phone.R
+import com.sip.phone.ui.MainActivity
 import com.sip.phone.util.ContactUtil
 import kotlinx.android.synthetic.main.dial_view.view.*
-import java.util.regex.Pattern
 
 class DialView @JvmOverloads constructor(
     context: Context?,
@@ -87,7 +86,7 @@ class DialView @JvmOverloads constructor(
         /**
          * 点击拨号按键
          */
-        fun onCall()
+        fun onCall(phone: String)
 
         /**
          * 点击设置按键
@@ -165,8 +164,9 @@ class DialView @JvmOverloads constructor(
     }
 
     fun onCall(view: View?) {
-        if (mDialViewListener != null) {
-            mDialViewListener!!.onCall()
+        val phone = mDialpadInput?.text.toString().trim()
+        if (mDialViewListener != null && phone.isNotEmpty()) {
+            mDialViewListener!!.onCall(phone)
         }
     }
 
