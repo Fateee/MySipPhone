@@ -32,6 +32,9 @@ object SdkUtil {
     //是否扩音器
     private var isVolumeOpen = false
 
+    var mCallingPhone : String? = null
+    var mCallingName : String? = null
+
     private fun getSignature(phone : String, channel : String = "cannelA", timestamp : Long = System.currentTimeMillis()): String? {
 //        val timestamp = System.currentTimeMillis()
         val encrypt = RSAEncrypt.encrypt(
@@ -56,7 +59,6 @@ object SdkUtil {
 //                        startActivity(intent)
                     }
                     okCallback?.invoke(t.retcode)
-                    //todo remove
                     ToastUtil.showDebug("ret code:${t.retcode} msg:${t.retmsg} ")
                 }
 
@@ -159,7 +161,7 @@ object SdkUtil {
 //        EcphoneSdk.register(sipIp, sipPort, urlEditText.text.toString())
 
         if (event.sipip != "-1") {
-            MMKVUtil.encode(Constants.HOST, event.sipip) //保存手机号
+            MMKVUtil.encode(Constants.HOST, event.sipip)
             MMKVUtil.encode(Constants.PORT, event.sipPort)
             MMKVUtil.encode(Constants.DOMAIN, event.doMain)
         }
@@ -232,6 +234,7 @@ object SdkUtil {
         callId?.let { EcSipLib.getInstance(MainApplication.app).rejectCall(it) }
         mCallComingEvent = null
         isCallOuting = false
+        isVolumeOpen = false
     }
 
     /*** 呼出*****/
@@ -252,9 +255,23 @@ object SdkUtil {
 
     //自己挂断
     fun hangup() {
+        mCallComingEvent = null
         isCallOuting = false
+        isVolumeOpen = false
         if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
             Log.i(TAG, "endCall 电话挂断")
         }
+    }
+
+    fun switchSpeaker(): Boolean {
+        isVolumeOpen = !isVolumeOpen
+        SipAudioManager.getInstance().setSpeakerMode(isVolumeOpen)
+        return isVolumeOpen
+    }
+
+    fun switchMute(): Boolean {
+        isMicOff = !isMicOff
+        SipAudioManager.getInstance().muteMicrophone(isMicOff)
+        return isMicOff
     }
 }

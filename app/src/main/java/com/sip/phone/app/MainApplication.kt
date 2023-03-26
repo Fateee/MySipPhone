@@ -19,7 +19,9 @@ import com.ludashi.function.watchdog.WatchDog
 import com.ludashi.function.watchdog.WatchEventCallback
 import com.sip.phone.BuildConfig
 import com.sip.phone.R
+import com.sip.phone.call.calling.CallingFloatManager
 import com.sip.phone.call.incall.InCallFloatManager
+import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.login.LoginActivity
@@ -45,7 +47,7 @@ class MainApplication : Application() {
         app = this
         initWatchDog()
         Log.i(TAG,"initWatchDog...");
-//        if (!AppUtil.isMainProcess(this)) return
+        if (!AppUtil.isMainProcess(this)) return
         Log.w(TAG,"main process attachBaseContext...");
         initTopActivity()
         if (!EventBusTag.isRegistered()) { //
@@ -232,6 +234,8 @@ class MainApplication : Application() {
         Log.d(TAG, "### 呼叫断开消息 " + event.callID)
         SdkUtil.reject(event.callID,false)
         InCallFloatManager.instance.dismiss()
+        OutCallFloatManager.instance.dismiss()
+        CallingFloatManager.instance.dismiss()
 //        ToastUtil.showDebug("呼叫已断开")
     }
 
@@ -243,7 +247,8 @@ class MainApplication : Application() {
         Log.d(TAG, "### 呼叫通话消息 " + event.callID)
 //        callId = event.callID
 //        getCall()
-        //todo hy 显示通话中界面
+        CallingFloatManager.instance.show(SdkUtil.mCallingPhone?:"",SdkUtil.mCallingName?:"")
+        OutCallFloatManager.instance.dismiss()
     }
 
     override fun onTerminate() {

@@ -1,6 +1,6 @@
 package com.sip.phone.call.outcall
 
-import com.easycalltech.ecsdk.event.CallComingEvent
+import com.sip.phone.sdk.SdkUtil
 
 /**
  * 悬浮窗管理类
@@ -18,6 +18,8 @@ class OutCallFloatManager private constructor() {
     }
 
     fun show(phone: String, name : String) {
+        SdkUtil.mCallingPhone = phone
+        SdkUtil.mCallingName = name
         fw?.show(phone, name)
     }
 
