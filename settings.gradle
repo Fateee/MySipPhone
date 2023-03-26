@@ -1,3 +1,4 @@
 include ':contact'
 include ':app'
+include ':watchdog'
 rootProject.name = "SipPhone"

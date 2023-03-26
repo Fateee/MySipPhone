@@ -3,6 +3,7 @@ package com.sip.phone.app
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import com.easycalltech.ecsdk.business.location.LocationResult
@@ -12,12 +13,18 @@ import com.easycalltech.ecsdk.event.CallConfirmedEvent
 import com.easycalltech.ecsdk.event.CallDisconnectEvent
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
+import com.ludashi.framework.Framework
+import com.ludashi.framework.utils.log.LogUtil
+import com.ludashi.function.watchdog.WatchDog
+import com.ludashi.function.watchdog.WatchEventCallback
+import com.sip.phone.BuildConfig
+import com.sip.phone.R
 import com.sip.phone.call.incall.InCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.login.LoginActivity
+import com.sip.phone.util.AppUtil
 import com.sip.phone.util.OverlayUtil
-import com.sip.phone.util.ToastUtil
 import com.tencent.mmkv.MMKV
 import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
@@ -25,6 +32,7 @@ import kotlinx.android.synthetic.main.activity_login.*
 import me.jessyan.autosize.AutoSize
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.onAdaptListener
+import me.weishu.reflection.Reflection
 
 class MainApplication : Application() {
     private val TAG = "MainApplication_hy"
@@ -35,6 +43,10 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         app = this
+        initWatchDog()
+        Log.i(TAG,"initWatchDog...");
+//        if (!AppUtil.isMainProcess(this)) return
+        Log.w(TAG,"main process attachBaseContext...");
         initTopActivity()
         if (!EventBusTag.isRegistered()) { //
             EventBusTag.register(this)
@@ -96,6 +108,61 @@ class MainApplication : Application() {
             //直接执行登录流程
             SdkUtil.initAndBindLoginFlow(phoneCached!!)
         }
+    }
+
+    /**
+     * 华为渠道的保活改为：安装之后24小时再启动保活策略
+     * 其他渠道包不变
+     */
+    private fun initWatchDog() {
+        val dogBuilder = WatchDog.getInstance().builder
+            .enableAliveService()
+            .enableOnePixelActivity()
+            .enableJobSchedule()
+            .enableDualProcessDaemon()
+            .enableAccountSync("demo.daemon", "com.ludashi.demo.daemon.provider")
+        dogBuilder.build().startWatch()
+    }
+
+    override fun attachBaseContext(base: Context) {
+        super.attachBaseContext(base)
+        //        if(!AppUtil.isMainProcess(this)) return;
+//        Log.i(TAG,"main process attachBaseContext...");
+        Framework.newInitializer()
+            .applicationInstance(this)
+            .versionCode(BuildConfig.VERSION_CODE)
+            .versionName(BuildConfig.VERSION_NAME)
+            .pkgName(BuildConfig.APPLICATION_ID)
+            .channel("home")
+            .appName(getString(R.string.app_name))
+            .setLauncherIcon(R.mipmap.ic_launcher)
+            .logEnable(true)
+            .logTag("yunShanTong")
+            .logLevel(if (BuildConfig.DEBUG) LogUtil.LEVEL.DEBUG else LogUtil.LEVEL.ERROR)
+            .log2Console(BuildConfig.DEBUG)
+            .log2File(false)
+            .initialize()
+        WatchDog.Builder()
+            .registerEventHandler(object : WatchEventCallback {
+                override fun stat(type: String, action: String) {}
+
+                override fun startOwnAliveService(): Boolean {
+                    return false
+                }
+
+                override fun makeSureReflectHideApiAfterP() {
+                    Reflection.unseal(baseContext)
+                }
+
+                override fun wallPaperBackRes(): Int {
+                    return 0
+                }
+
+                override fun wallPaperFrontRes(): Int {
+                    return 0
+                }
+            })
+            .build()
     }
 
     @EventBusSub(tag = "AccountRegisterEvent")
