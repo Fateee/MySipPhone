@@ -39,7 +39,6 @@ class LoginActivity : BaseActivity() {
     override fun getLayoutId() = R.layout.activity_login
 
     override fun initPages() {
-        //todo hy 权限
         Log.i(TAG,"EventBusTag.isRegistered() ${EventBusTag.isRegistered()}")
 //        if (!EventBusTag.isRegistered()) { //
 //            EventBusTag.register(this)

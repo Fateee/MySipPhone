@@ -97,7 +97,6 @@ public abstract class MvvmBaseModel<F> implements MvvmNetworkObserver<F> {
 //        if (data != null) {
 //            mResData.bodyData = data;
 //            mResData.updateTimeMills = System.currentTimeMillis();
-//            //todo save json to sp
 ////            SpUtil.getInstance().setString(mCachedSpKey,new Gson().toJson(mResData));
 //        }
 //    }
@@ -132,7 +131,6 @@ public abstract class MvvmBaseModel<F> implements MvvmNetworkObserver<F> {
 
     public void getCachedDataAndLoad() {
         if (mCachedSpKey != null) {
-            //todo get json from sp
 //            String savedStr = SpUtil.getInstance().getString(mCachedSpKey);
 //            if (!TextUtils.isEmpty(savedStr)) {
 //                try {

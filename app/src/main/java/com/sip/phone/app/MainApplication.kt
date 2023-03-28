@@ -107,7 +107,6 @@ class MainApplication : Application() {
         val hasNumber = !phoneCached.isNullOrEmpty()
         Log.i(TAG,"---initRegister phoneCached: $phoneCached hasNumber: $hasNumber top_activity: $top_activity")
         if (!hasNumber) {
-            //todo hy 保活后 不知道会不会后台启动界面?
             LoginActivity.startActivity()
         } else {
             //直接执行登录流程
