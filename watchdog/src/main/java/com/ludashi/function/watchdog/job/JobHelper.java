@@ -87,7 +87,7 @@ public class JobHelper {
         switch (jobId) {
             case AliveJobService.PERIODIC_JOB_ID:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    builder.setPeriodic(INTERVAL_FOR_JOB, TimeUnit.MINUTES.toMillis(10));
+                    builder.setPeriodic(INTERVAL_FOR_JOB, TimeUnit.MINUTES.toMillis(5));
                 } else {
                     builder.setPeriodic(INTERVAL_FOR_JOB);
                 }

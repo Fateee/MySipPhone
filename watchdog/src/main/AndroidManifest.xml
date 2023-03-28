@@ -124,8 +124,8 @@
             <intent-filter android:priority="2147483647">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.REBOOT" />
-            </intent-filter>
-            <intent-filter android:priority="2147483647">
+<!--            </intent-filter>-->
+<!--            <intent-filter android:priority="2147483647">-->
                 <!--从竞品引入的-->
                 <action android:name="android.hardware.usb.action.USB_STATE" />
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
@@ -156,14 +156,15 @@
                 <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
                 <action android:name="android.bluetooth.headset.profile.action.CONNECTION_STATE_CHANGED" />
                 <action android:name="android.telephony.action.CARRIER_CONFIG_CHANGED" />
-            </intent-filter>
-            <intent-filter android:priority="2147483647">
+                <action android:name="android.intent.action.BATTERY_CHANGED" />
+<!--            </intent-filter>-->
+<!--            <intent-filter android:priority="2147483647">-->
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
-            <intent-filter>
+<!--            </intent-filter>-->
+<!--            <intent-filter>-->
                 <action android:name="com.ludashi.function.watchdog.keepalive" />
-            </intent-filter>
-            <intent-filter android:priority="2147483647">
+<!--            </intent-filter>-->
+<!--            <intent-filter android:priority="2147483647">-->
                 <!-- actions in this filter is copied from app(com.snda.wifilocating) just for test.
                  if useless would be deleted -->
                 <action android:name="android.intent.action.DATE_CHANGED" />

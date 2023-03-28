@@ -23,6 +23,7 @@ import com.ludashi.function.watchdog.keepalive.screenmonitor.ScreenMonitor;
 import com.ludashi.function.watchdog.keepalive.screenmonitor.ScreenMonitorHelper;
 import com.ludashi.function.watchdog.notification.NotificationHelper;
 import com.ludashi.function.watchdog.receiver.DaemonReceiver;
+import com.ludashi.function.watchdog.receiver.DaemonReceiverListener;
 import com.ludashi.function.watchdog.receiver.IPhoneStateMonitor;
 import com.ludashi.function.watchdog.receiver.PhoneStateReceiver;
 import com.ludashi.function.watchdog.service.AliveService;
@@ -104,6 +105,7 @@ public class WatchDog {
     private boolean enableDualProcessDaemon;
     private WatchEventCallback eventHandler;
     private IPhoneStateMonitor phoneStateMonitor;
+    private DaemonReceiverListener daemonReceiverListener;
     private Builder mBuilder;
 
     private WatchDog() {
@@ -185,6 +187,9 @@ public class WatchDog {
         }
         if (builder.phoneStateMonitor != null) {
             this.phoneStateMonitor = builder.phoneStateMonitor;
+        }
+        if (builder.daemonReceiverListener != null) {
+            this.daemonReceiverListener = builder.daemonReceiverListener;
         }
     }
 
@@ -275,6 +280,9 @@ public class WatchDog {
         if (phoneStateMonitor != null) {
             PhoneStateReceiver.addPhoneStateListener(phoneStateMonitor);
         }
+        if (daemonReceiverListener != null) {
+            DaemonReceiver.setDaemonReceiverListener(daemonReceiverListener);
+        }
     }
 
     private boolean isItemNotInit(int initFlag) {
@@ -330,7 +338,7 @@ public class WatchDog {
         private String accountAuthority;
         private WatchEventCallback eventHandler;
         private IPhoneStateMonitor phoneStateMonitor;
-
+        private DaemonReceiverListener daemonReceiverListener;
         public Builder enableAliveService() {
             this.enableAliveService = true;
             return this;
@@ -404,6 +412,11 @@ public class WatchDog {
          */
         public Builder registerPhoneStateListener(IPhoneStateMonitor phoneStateMonitor) {
             this.phoneStateMonitor = phoneStateMonitor;
+            return this;
+        }
+
+        public Builder registerDaemonReceiverListener(DaemonReceiverListener daemonReceiverListener) {
+            this.daemonReceiverListener = daemonReceiverListener;
             return this;
         }
 

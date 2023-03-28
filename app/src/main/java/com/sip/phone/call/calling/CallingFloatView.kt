@@ -163,6 +163,7 @@ class CallingFloatView {
         timeDispose = Observable.interval(0, 1000, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ it -> // 逻辑代码
+                SdkUtil.mDuration = it
                 tvTimer?.text = DateUtils.timeParse(it * 1000)
             }) { throwable -> throwable.printStackTrace() }
     }

@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.easycalltech.ecsdk.EcSipLib
+import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import com.sip.phone.constant.Constants
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.view.DialView
 import kotlinx.android.synthetic.main.fragment_home.*
@@ -44,12 +47,23 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        val name = arguments?.getString("name")
+        val number = arguments?.getString("number")
+        if (!name.isNullOrEmpty() && !number.isNullOrEmpty()) {
+            val arr = arrayOfNulls<String>(2)
+            arr[0] = name
+            arr[1] = number
+            setContactInfo(arr)
+        }
         dialView?.setDialViewListener(object : DialView.DialViewListener {
             override fun inputChange() {}
 
             override fun onCall(phone: String, name : String) {
-                SdkUtil.makeCall(phone, name)
+                HttpPhone.authPhone(phone) {
+                    SdkUtil.checkMyPermissions(context) {
+                        SdkUtil.makeCall(phone, name)
+                    }
+                }
             }
 
             override fun onSetting() {}

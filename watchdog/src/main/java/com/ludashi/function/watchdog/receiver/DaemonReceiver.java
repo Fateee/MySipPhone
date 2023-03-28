@@ -16,15 +16,23 @@ import com.ludashi.function.watchdog.WatchDog;
  */
 public class DaemonReceiver extends BroadcastReceiver {
     private static final String TAG = "DaemonReceiver";
+    private static DaemonReceiverListener daemonReceiverListener = null;
+
+    public static void setDaemonReceiverListener(DaemonReceiverListener daemonReceiverListener) {
+        DaemonReceiver.daemonReceiverListener = daemonReceiverListener;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        LogUtil.i(TAG, "alive receive " + action);
+        LogUtil.i(TAG, "alive receive " + action+" | daemonReceiverListener= "+daemonReceiverListener);
         if (TextUtils.isEmpty(action)) {
             action = WakeBy.NATIVE;
         }
         WatchDog.trySetWakeBy(action);
+        if (daemonReceiverListener != null) {
+            daemonReceiverListener.onReceive(context, intent);
+        }
     }
 
 }

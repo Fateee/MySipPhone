@@ -11,7 +11,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.easycalltech.ecsdk.business.location.LocationResult
+import com.easycalltech.ecsdk.EcSipNetworkUtil
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
 import com.ec.utils.MMKVUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -52,13 +52,17 @@ class MainActivity : BaseActivity() {
         val hasNumber = !phoneCached.isNullOrEmpty()
         Log.i(TAG,"phoneCached $phoneCached hasNumber $hasNumber")
         if (!hasNumber) {
-//            LoginActivity.startActivity()
+            LoginActivity.startActivity()
             finish()
+        } else {
+            //直接执行登录流程
+            val registered = SdkUtil.isRegistered()
+            val noNet = EcSipNetworkUtil.getNetWorkState(MainApplication.app).equals(EcSipNetworkUtil.NETWORK_NONE)
+            Log.e(TAG,"how about network? noNet: $noNet")
+            if (!registered && !noNet) {//没注册成功且有网络时
+                SdkUtil.initAndBindLoginFlow(phoneCached!!)
+            }
         }
-//        else {
-//            //直接执行登录流程
-//            SdkUtil.initAndBindLoginFlow(phoneCached!!)
-//        }
         return hasNumber
     }
 
@@ -75,6 +79,8 @@ class MainActivity : BaseActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         navView.setupWithNavController(navController)
+
+        SdkUtil.checkMyPermissions(this)
         OverlayUtil.initOverlayPermission(this)
     }
 

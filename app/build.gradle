@@ -87,6 +87,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'me.jessyan:autosize:1.2.1'
+    api 'com.github.getActivity:XXPermissions:16.5'
+    implementation project(":network")
     implementation project(path: ':watchdog')
     implementation project(path: ':contact')
 //    testImplementation 'junit:junit:4.+'

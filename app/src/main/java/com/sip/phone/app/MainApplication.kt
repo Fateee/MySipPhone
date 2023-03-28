@@ -5,7 +5,9 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import android.os.Process
 import android.util.Log
+import com.easycalltech.ecsdk.EcSipNetworkUtil
 import com.easycalltech.ecsdk.business.location.LocationResult
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
 import com.easycalltech.ecsdk.event.CallComingEvent
@@ -17,16 +19,17 @@ import com.ludashi.framework.Framework
 import com.ludashi.framework.utils.log.LogUtil
 import com.ludashi.function.watchdog.WatchDog
 import com.ludashi.function.watchdog.WatchEventCallback
+import com.ludashi.function.watchdog.receiver.IPhoneStateMonitor
 import com.sip.phone.BuildConfig
 import com.sip.phone.R
 import com.sip.phone.call.calling.CallingFloatManager
 import com.sip.phone.call.incall.InCallFloatManager
 import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.login.LoginActivity
-import com.sip.phone.util.AppUtil
-import com.sip.phone.util.OverlayUtil
+import com.sip.phone.util.*
 import com.tencent.mmkv.MMKV
 import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
@@ -46,16 +49,16 @@ class MainApplication : Application() {
         super.onCreate()
         app = this
         initWatchDog()
-        Log.i(TAG,"initWatchDog...");
+        Log.i(TAG,"---------------...initWatchDog...");
         if (!AppUtil.isMainProcess(this)) return
-        Log.w(TAG,"main process attachBaseContext...");
+        MMKV.initialize(this)
         initTopActivity()
+        Log.d(TAG,"-_- ...main process attachBaseContext... ")
         if (!EventBusTag.isRegistered()) { //
             EventBusTag.register(this)
         }
-        MMKV.initialize(this)
         initAutoSize()
-        beforeSetContent()
+        initRegister()
         SipAudioManager.getInstance().initialise(this)
     }
 
@@ -98,11 +101,11 @@ class MainApplication : Application() {
         })
     }
 
-    private fun beforeSetContent() {
+    private fun initRegister() {
 //        MMKVUtil.encode(Constants.PHONE,"")
         val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
         val hasNumber = !phoneCached.isNullOrEmpty()
-        Log.i(TAG,"beforeSetContent phoneCached $phoneCached hasNumber $hasNumber top_activity $top_activity")
+        Log.i(TAG,"---initRegister phoneCached: $phoneCached hasNumber: $hasNumber top_activity: $top_activity")
         if (!hasNumber) {
             //todo hy 保活后 不知道会不会后台启动界面?
             LoginActivity.startActivity()
@@ -123,7 +126,37 @@ class MainApplication : Application() {
             .enableJobSchedule()
             .enableDualProcessDaemon()
             .enableAccountSync("demo.daemon", "com.ludashi.demo.daemon.provider")
+            .registerPhoneStateListener(object :IPhoneStateMonitor{
+                override fun onHomeKeyClick() {}
+
+                override fun onRecentKeyClick() {}
+
+                override fun onScreenOn() {
+                    reRegisterPhone()
+                }
+
+                override fun onScreenOff() {
+                    reRegisterPhone()
+                }
+
+            })
+            .registerDaemonReceiverListener { _, _ ->
+                reRegisterPhone()
+            }
         dogBuilder.build().startWatch()
+    }
+
+    fun reRegisterPhone() {
+        val registered = SdkUtil.isRegistered()
+        if (registered) return
+        val noNet = EcSipNetworkUtil.getNetWorkState(app).equals(EcSipNetworkUtil.NETWORK_NONE)
+        Log.e(TAG,"how about network? noNet: $noNet")
+//                val netOkType = NetUtil.isNetworkConnectedByType(this)
+//                val netOk = NetUtil.isNetworkConnected(this)
+//                Log.e(TAG,"network is none? noNet: $noNet netOkType $netOkType netOk $netOk app $app")
+        if (!registered && !noNet) {//没注册成功且有网络时
+            initRegister()
+        }
     }
 
     override fun attachBaseContext(base: Context) {
@@ -137,7 +170,7 @@ class MainApplication : Application() {
             .pkgName(BuildConfig.APPLICATION_ID)
             .channel("home")
             .appName(getString(R.string.app_name))
-            .setLauncherIcon(R.mipmap.ic_launcher)
+            .setLauncherIcon(R.mipmap.icon_launcher)
             .logEnable(true)
             .logTag("yunShanTong")
             .logLevel(if (BuildConfig.DEBUG) LogUtil.LEVEL.DEBUG else LogUtil.LEVEL.ERROR)
@@ -146,7 +179,10 @@ class MainApplication : Application() {
             .initialize()
         WatchDog.Builder()
             .registerEventHandler(object : WatchEventCallback {
-                override fun stat(type: String, action: String) {}
+                override fun stat(type: String, action: String) {
+//                    Log.e(TAG,"relive by: type $type, action $action")
+                    Log.i(TAG,"stat: type == "+type+" action == "+action+" pid == "+ Process.myPid()+" mAppContext == "+ app +" baseContext = "+base+" "+base.applicationContext)
+                }
 
                 override fun startOwnAliveService(): Boolean {
                     return false
@@ -202,6 +238,7 @@ class MainApplication : Application() {
                 event.callID,
                 event.displayName?.substringBefore("@")
             )
+//            startService(Intent(this,MyService::class.java))
             InCallFloatManager.instance.show(newEvent)
 //            showFloatingView(newEvent)
         }
@@ -232,6 +269,9 @@ class MainApplication : Application() {
     @EventBusSub(tag = "CallDisconnectEvent")
     fun callDisconnect(event: CallDisconnectEvent) {
         Log.d(TAG, "### 呼叫断开消息 " + event.callID)
+        if (SdkUtil.isCallOuting) {//只记录呼出并且接通了的通话
+            HttpPhone.recordCallLog()
+        }
         SdkUtil.reject(event.callID,false)
         InCallFloatManager.instance.dismiss()
         OutCallFloatManager.instance.dismiss()
@@ -247,6 +287,9 @@ class MainApplication : Application() {
         Log.d(TAG, "### 呼叫通话消息 " + event.callID)
 //        callId = event.callID
 //        getCall()
+        if (SdkUtil.isCallOuting) {
+            SdkUtil.mBeginTime = TimeUtil.getNowString()
+        }
         CallingFloatManager.instance.show(SdkUtil.mCallingPhone?:"",SdkUtil.mCallingName?:"")
         OutCallFloatManager.instance.dismiss()
     }

@@ -1,6 +1,7 @@
 package com.sip.phone.sdk
 
-import android.text.InputFilter
+import android.Manifest
+import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import com.easycalltech.ecsdk.EcSipLib
@@ -15,25 +16,37 @@ import com.ec.net.entity.BaseResponse
 import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
+import com.sip.contact.sortlist.SortModel
 import com.sip.phone.app.MainApplication
 import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.ui.MainActivity
+import com.sip.phone.util.PermissionUtils
 import com.sip.phone.util.ToastUtil
 
 object SdkUtil {
+    var mDuration: Long = 0
+    var mBeginTime : String? = null
+    var sourceDateList: ArrayList<SortModel?>? = null//联系人数据
+    var callRecords: Map<String, String>? = null
     private const val TAG = "SdkUtil_hy"
     private var isOnceStartMainActivity = true;
     var doMain = "sc.vopbx.dict.cn"
 
-    private var isCallOuting = false; //是否正在呼出
+    var isCallOuting = false; //是否正在呼出
     //是否静音
     private var isMicOff = false
     //是否扩音器
     private var isVolumeOpen = false
-
+    //是否是主动拒听
+    private var isDecline = false
     var mCallingPhone : String? = null
     var mCallingName : String? = null
+    private var mCallComingEvent: CallComingEvent? = null
+    /**
+     * 接听
+     */
+    private var isAnswer = false;
 
     private fun getSignature(phone : String, channel : String = "cannelA", timestamp : Long = System.currentTimeMillis()): String? {
 //        val timestamp = System.currentTimeMillis()
@@ -63,7 +76,7 @@ object SdkUtil {
                 }
 
                 override fun fail(e: Throwable?) {
-
+                    e?.printStackTrace()
                 }
             })
     }
@@ -166,6 +179,7 @@ object SdkUtil {
             MMKVUtil.encode(Constants.DOMAIN, event.doMain)
         }
         EcphoneSdk.register(event.sipip, event.sipPort, event.doMain)
+        Log.i(TAG, "register sipip: ${EcphoneSdk.ecSdk?.mSIPIP} sipport: ${EcphoneSdk.ecSdk?.mSIPPort} domain: ${EcphoneSdk.ecSdk?.mDoMain}")
     }
 
     fun registerSuccess(event: AccountRegisterEvent, phone: String?, callback: (() -> Unit)? = null) {
@@ -194,19 +208,14 @@ object SdkUtil {
             }
 
         } else if (event.registrationStateCode == 408) {
-            ToastUtil.showToast("注册超时：")
+            ToastUtil.showDebug("注册超时：")
             //  releaseWakeLock();
         } else {
-            ToastUtil.showToast("注册结果：代码:" + event.registrationStateCode)
+            ToastUtil.showDebug("注册结果：代码:" + event.registrationStateCode)
             //   releaseWakeLock();
         }
     }
 
-    private var mCallComingEvent: CallComingEvent? = null
-    /**
-     * 接听
-     */
-    private var isAnswer = false;
     fun answer(callComingEvent: CallComingEvent?) {
         mCallComingEvent = callComingEvent
         if (mCallComingEvent == null) return
@@ -221,8 +230,6 @@ object SdkUtil {
         isAnswer = true;
     }
 
-    //是否是主动拒听
-    private var isDecline = false
     /**
      * 拒接
      */
@@ -230,11 +237,8 @@ object SdkUtil {
         //停止振铃
         SipAudioManager.getInstance().stopRingtone()
         isDecline = decline
-        isAnswer = false
         callId?.let { EcSipLib.getInstance(MainApplication.app).rejectCall(it) }
-        mCallComingEvent = null
-        isCallOuting = false
-        isVolumeOpen = false
+        resetParams()
     }
 
     /*** 呼出*****/
@@ -255,9 +259,6 @@ object SdkUtil {
 
     //自己挂断
     fun hangup() {
-        mCallComingEvent = null
-        isCallOuting = false
-        isVolumeOpen = false
         if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
             Log.i(TAG, "endCall 电话挂断")
         }
@@ -273,5 +274,52 @@ object SdkUtil {
         isMicOff = !isMicOff
         SipAudioManager.getInstance().muteMicrophone(isMicOff)
         return isMicOff
+    }
+
+    private fun checkPhonePermissions(context: Context?, callback: PermissionUtils.Callback?) {
+        val permissions = arrayOf(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+//            Manifest.permission.REORDER_TASKS,
+            Manifest.permission.SYSTEM_ALERT_WINDOW,
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.READ_PHONE_STATE
+        )
+        PermissionUtils.checkPermission(context, callback, *permissions)
+    }
+
+    fun checkMyPermissions(context: Context?, okCallback: (() -> Unit)? = null) {
+        checkPhonePermissions(context, object : PermissionUtils.Callback() {
+            override fun onGranted() {
+                super.onGranted()
+                okCallback?.invoke()
+            }
+            override fun onDenied(context: Context) {
+                super.onDenied(context)
+                ToastUtil.showToast("拒绝权限申请可能导致功能无法正常使用！")
+            }
+        })
+    }
+
+    fun isRegistered(): Boolean {
+        val sdk = EcphoneSdk.ecSdk ?: return false
+        val field = sdk::class.java.getDeclaredField("mIsRegister")
+        field.isAccessible = true
+        val value = field.get(sdk)
+        Log.e(TAG,"---------isPhoneRegistered---: $value")
+        return value as Boolean
+    }
+
+    fun resetParams() {
+        isAnswer = false
+        mCallComingEvent = null
+        isCallOuting = false
+        isVolumeOpen = false
+        mBeginTime = null
+        mDuration = 0
+        isMicOff = false
+        mCallingPhone = null
+        mCallingName  = null
     }
 }

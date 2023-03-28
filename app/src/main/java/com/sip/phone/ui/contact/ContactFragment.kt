@@ -1,5 +1,6 @@
 package com.sip.phone.ui.contact
 
+import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
@@ -10,12 +11,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.sip.contact.ClearEditText
 import com.sip.contact.ConstactUtil
 import com.sip.contact.PinyinComparator
@@ -25,6 +28,8 @@ import com.sip.contact.sortlist.SideBar
 import com.sip.contact.sortlist.SortModel
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.util.ToastUtil
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -37,10 +42,9 @@ class ContactFragment : Fragment() {
     private var dialog: TextView? = null
     private var adapter: SortAdapter? = null
     private var mClearEditText: ClearEditText? = null
-    private var callRecords: Map<String, String>? = null
 
     private var characterParser: CharacterParser? = null
-    private var sourceDateList: ArrayList<SortModel?>? = null
+//    private var sourceDateList: ArrayList<SortModel?>? = null
 
     private var pinyinComparator: PinyinComparator? = null
 
@@ -74,10 +78,10 @@ class ContactFragment : Fragment() {
         // 实例化汉字转拼音类
         characterParser = CharacterParser.getInstance()
         pinyinComparator = PinyinComparator()
-        sideBar!!.setTextView(dialog)
+        sideBar?.setTextView(dialog)
 
         // 设置右侧触摸监听
-        sideBar!!.setOnTouchingLetterChangedListener { s -> // 该字母首次出现的位置
+        sideBar?.setOnTouchingLetterChangedListener { s -> // 该字母首次出现的位置
             val position = adapter?.getPositionForSection(s[0].toInt()) ?:0
             if (position != -1) {
                 sortListView!!.setSelection(position)
@@ -88,17 +92,29 @@ class ContactFragment : Fragment() {
                 // Toast.makeText(getApplication(),
                 // ((SortModel)adapter.getItem(position)).getName(),
                 // Toast.LENGTH_SHORT).show();
-                val number = callRecords!![(adapter?.getItem(position) as SortModel).name]
-//                Toast.makeText(this@MainActivity, number, 0).show()
+                hideKeyboard()
+                val name = (adapter?.getItem(position) as SortModel).name
+                val number = SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
+                val bundle = Bundle()
+                bundle.putString("name", name)
+                bundle.putString("number", number)
+                findNavController(this).navigate(R.id.navigation_home, bundle)
+
             }
-        ContactAsyncTask().execute(0)
+        if (SdkUtil.sourceDateList.isNullOrEmpty()) {
+            SdkUtil.checkMyPermissions(context) {
+                ContactAsyncTask().execute(0)
+            }
+        } else {
+            initListView()
+        }
     }
 
     inner class ContactAsyncTask : AsyncTask<Int?, Int?, Int>() {
 
         override fun doInBackground(vararg arg0: Int?): Int {
             var result = -1
-            callRecords = ConstactUtil.getAllCallRecords(MainApplication.app)
+            SdkUtil.callRecords = ConstactUtil.getAllCallRecords(MainApplication.app)
             result = 1
             return result
         }
@@ -107,7 +123,7 @@ class ContactFragment : Fragment() {
             super.onPostExecute(result)
             if (result == 1) {
                 val constact: MutableList<String> = ArrayList()
-                val keys: Iterator<String>? = callRecords?.keys?.iterator()
+                val keys: Iterator<String>? = SdkUtil.callRecords?.keys?.iterator()
                 while (keys?.hasNext() == true) {
                     val key = keys.next()
                     constact.add(key)
@@ -115,37 +131,41 @@ class ContactFragment : Fragment() {
                 val names = constact.toTypedArray()
 //                names = constact.toArray<String>(names)
 //                names = constact.toTypedArray()
-                sourceDateList = filledData(names)
+                SdkUtil.sourceDateList = filledData(names)
 
                 // 根据a-z进行排序源数据
-                Collections.sort(sourceDateList, pinyinComparator)
-                adapter = SortAdapter(context, sourceDateList)
-                sortListView?.setAdapter(adapter)
-                mClearEditText = root?.findViewById(R.id.filter_edit) as ClearEditText
-                mClearEditText?.setOnFocusChangeListener(OnFocusChangeListener { arg0, arg1 ->
-                    mClearEditText?.setGravity(Gravity.LEFT or Gravity.CENTER_VERTICAL)
-                })
-                // 根据输入框输入值的改变来过滤搜索
-                mClearEditText?.addTextChangedListener(object : TextWatcher {
-                    override fun onTextChanged(
-                        s: CharSequence, start: Int,
-                        before: Int, count: Int
-                    ) {
-                        // 当输入框里面的值为空，更新为原来的列表，否则为过滤数据列表
-                        filterData(s.toString())
-                    }
-
-                    override fun beforeTextChanged(
-                        s: CharSequence, start: Int,
-                        count: Int, after: Int
-                    ) {
-                    }
-
-                    override fun afterTextChanged(s: Editable) {}
-                })
+                Collections.sort(SdkUtil.sourceDateList, pinyinComparator)
+                initListView()
             }
         }
 
+    }
+
+    private fun initListView() {
+        adapter = SortAdapter(context, SdkUtil.sourceDateList)
+        sortListView?.setAdapter(adapter)
+        mClearEditText = root?.findViewById(R.id.filter_edit) as ClearEditText
+        mClearEditText?.setOnFocusChangeListener(OnFocusChangeListener { arg0, arg1 ->
+            mClearEditText?.setGravity(Gravity.LEFT or Gravity.CENTER_VERTICAL)
+        })
+        // 根据输入框输入值的改变来过滤搜索
+        mClearEditText?.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                // 当输入框里面的值为空，更新为原来的列表，否则为过滤数据列表
+                filterData(s.toString())
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun afterTextChanged(s: Editable) {}
+        })
     }
 
     /**
@@ -181,11 +201,11 @@ class ContactFragment : Fragment() {
      */
     private fun filterData(filterStr: String) {
         var filterDateList = ArrayList<SortModel?>()
-        if (TextUtils.isEmpty(filterStr) && !sourceDateList.isNullOrEmpty()) {
-            filterDateList = sourceDateList!!
+        if (TextUtils.isEmpty(filterStr) && !SdkUtil.sourceDateList.isNullOrEmpty()) {
+            filterDateList = SdkUtil.sourceDateList!!
         } else {
             filterDateList.clear()
-            for (sortModel in sourceDateList!!) {
+            for (sortModel in SdkUtil.sourceDateList!!) {
                 val name = sortModel?.name
                 if (name?.indexOf(filterStr) != -1 || characterParser?.getSelling(name)?.startsWith(filterStr) == true) {
                     filterDateList.add(sortModel)
@@ -196,5 +216,13 @@ class ContactFragment : Fragment() {
         // 根据a-z进行排序
         Collections.sort(filterDateList, pinyinComparator)
         adapter?.updateListView(filterDateList)
+    }
+
+    fun hideKeyboard() {
+        // 获取输入法管理器
+        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        // 隐藏键盘
+        inputMethodManager.hideSoftInputFromWindow(mClearEditText?.windowToken, 0)
+
     }
 }
