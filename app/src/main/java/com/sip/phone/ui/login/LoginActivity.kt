@@ -16,6 +16,7 @@ import com.sip.phone.app.MainApplication
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.ui.base.BaseActivity
+import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
 import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
@@ -100,6 +101,9 @@ class LoginActivity : BaseActivity() {
                 }
             }
         }
+        SdkUtil.checkMyPermissions(this)
+        OverlayUtil.initOverlayPermission(this)
+        OverlayUtil.autoSelfLaunchPermission(this)
     }
 
     private fun isPhoneEmpty() :Boolean {

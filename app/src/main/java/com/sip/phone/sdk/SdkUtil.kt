@@ -282,7 +282,7 @@ object SdkUtil {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
 //            Manifest.permission.REORDER_TASKS,
-            Manifest.permission.SYSTEM_ALERT_WINDOW,
+//            Manifest.permission.SYSTEM_ALERT_WINDOW,
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.READ_PHONE_STATE
         )

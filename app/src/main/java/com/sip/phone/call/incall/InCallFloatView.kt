@@ -22,6 +22,7 @@ import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.call.calling.CallingFloatManager
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
 
 class InCallFloatView {
@@ -132,12 +133,15 @@ class InCallFloatView {
             if (!hasShown) {
                 if (Settings.canDrawOverlays(MainApplication.app)) {
                     if (floatRootView?.parent == null) {
+                        Log.i(TAG,"调用来电显示界面。。。。。。。。。。。。OKK")
                         //RingManager.setMuteRing()
 //                        tvPhonePickUp?.visibility = if (callIn) View.VISIBLE else View.GONE
                         startWaveAnimation()
                         windowManager?.addView(floatRootView, layoutParam)
                         hasShown = true
                     }
+                } else {
+                    ToastUtil.showToast("未开启悬浮窗权限")
                 }
             }
         } catch (e: Exception) {

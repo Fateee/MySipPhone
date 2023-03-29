@@ -4,9 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.ludashi.framework.ApplicationHolder;
+import com.ludashi.framework.utils.sys.RomPlatform;
+import com.ludashi.framework.utils.sys.RomPlatformHolder;
 import com.ludashi.function.watchdog.keepalive.OnePixelActivity;
 import com.ludashi.function.watchdog.receiver.IPhoneStateMonitor;
 import com.ludashi.function.watchdog.util.DaemonLog;
+
+import java.lang.reflect.Method;
 
 /**
  * @author fanzhipeng
@@ -40,6 +44,11 @@ public class ScreenBroadcastReceiver implements IPhoneStateMonitor {
         Intent onePxIntent = new Intent(context, OnePixelActivity.class);
         onePxIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_FROM_BACKGROUND);
         try {
+            if (RomPlatform.isSame(RomPlatformHolder.get().platformId(), RomPlatform.XIAOMI)) {
+                Class<?> intentClass = onePxIntent.getClass();
+                Method putExtraMethod = intentClass.getMethod("setMiuiFlags", int.class);
+                putExtraMethod.invoke(onePxIntent, 0x2);
+            }
             context.startActivity(onePxIntent);
         } catch (Throwable e) {
             e.printStackTrace();

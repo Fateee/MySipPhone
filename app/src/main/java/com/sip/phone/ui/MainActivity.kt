@@ -82,6 +82,7 @@ class MainActivity : BaseActivity() {
 
         SdkUtil.checkMyPermissions(this)
         OverlayUtil.initOverlayPermission(this)
+        OverlayUtil.autoSelfLaunchPermission(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

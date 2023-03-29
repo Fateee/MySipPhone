@@ -16,6 +16,7 @@ import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.DateUtils
+import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -137,6 +138,8 @@ class CallingFloatView {
                         hasShown = true
                         countTime()
                     }
+                } else {
+                    ToastUtil.showToast("未开启悬浮窗权限")
                 }
             }
         } catch (e: Exception) {

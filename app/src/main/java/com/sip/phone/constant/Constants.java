@@ -57,4 +57,6 @@ public class Constants {
     public final static String HOST = "HOST";
     public final static String PORT = "PORT";
     public final static String DOMAIN = "DOMAIN";
+
+    public final static String SELF_AUTO_LAUNCH = "SELF_AUTO_LAUNCH";
 }

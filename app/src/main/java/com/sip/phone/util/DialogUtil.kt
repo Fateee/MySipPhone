@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.graphics.Color
+import android.text.Html
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextUtils
@@ -133,7 +134,7 @@ object DialogUtil {
     fun showOneBtDialog(mContext: Context?, title: String?="提示", msg: String?, msgColor: String?, btnStr: String?, btColor: String?, btnListener: View.OnClickListener?, vararg msgGravity: Int) : Dialog? {
         if (mContext == null) return null
         val root = LayoutInflater.from(mContext).inflate(R.layout.dialog_title_msg_one_bts, null)
-        root.message.text = msg
+        root.message.text = Html.fromHtml(msg)
         root.message.setCompoundDrawables(null,null,null,null)
         msgColor?.let {
             root.message.setTextColor(Color.parseColor(it))
@@ -159,6 +160,7 @@ object DialogUtil {
         params?.width = width
         params?.height = WindowManager.LayoutParams.WRAP_CONTENT
         dialog.window?.attributes = params
+        dialog.setCanceledOnTouchOutside(false)
         return dialog
     }
 //
