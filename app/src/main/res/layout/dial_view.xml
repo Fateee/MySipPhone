@@ -479,7 +479,8 @@
                 android:adjustViewBounds="true"
                 android:clickable="true"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic__select_contact" />
+                android:src="@drawable/ic__select_contact"
+                android:visibility="invisible"/>
 
             <View
                 android:layout_width="0dp"

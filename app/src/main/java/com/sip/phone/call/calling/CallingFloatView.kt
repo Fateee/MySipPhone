@@ -30,6 +30,7 @@ class CallingFloatView {
     private var windowManager: WindowManager? = null
     private var floatRootView: View? = null//悬浮窗View
     private var tvTimer: TextView? = null
+    private var alphaBg : View? = null
     private var tvCallNumber: TextView? = null
     private var tvPhoneHangUp: TextView? = null
     private var tvPhoneMute: TextView? = null
@@ -92,6 +93,7 @@ class CallingFloatView {
             }
             // 新建悬浮窗控件
             floatRootView = LayoutInflater.from(it).inflate(R.layout.view_phone_call, interceptorLayout)
+            alphaBg = floatRootView?.findViewById(R.id.alphaBg)
             tvCallNumber = floatRootView?.findViewById(R.id.incomeShowPhone)
             floatRootView?.findViewById<View>(R.id.refuseCall)?.visibility = View.GONE
             floatRootView?.findViewById<View>(R.id.acceptCallViewGroup)?.visibility = View.GONE
@@ -131,6 +133,7 @@ class CallingFloatView {
                     if (floatRootView?.parent == null) {
                         //RingManager.setMuteRing()
 //                        tvPhonePickUp?.visibility = if (callIn) View.VISIBLE else View.GONE
+                        alphaBg?.alpha = 1f
                         tvTimer?.text = "00:00"
                         tvCallNumber?.text = phone
                         tvCallName?.text = name
@@ -152,9 +155,12 @@ class CallingFloatView {
             if (hasShown) {
                 if (floatRootView?.parent != null) {
                     //RingManager.resetRingVolume()
-                    windowManager?.removeView(floatRootView)
                     hasShown = false
                     timeDispose?.dispose()
+                    alphaBg?.alpha = 0.65f
+                    floatRootView?.postDelayed({//延迟一秒关闭通话界面
+                        windowManager?.removeView(floatRootView)
+                    },1500)
                 }
             }
         } catch (e: Exception) {
