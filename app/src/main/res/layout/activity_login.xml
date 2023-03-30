@@ -24,7 +24,7 @@
             android:id="@+id/tv_login_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/login_tip"
+            android:text="沟通无极限    理解无止境"
             android:textColor="@color/c888888"
             android:textSize="14sp"
             android:layout_marginBottom="50dp"
