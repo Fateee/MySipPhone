@@ -39,7 +39,7 @@ object SdkUtil {
     //是否扩音器
     private var isVolumeOpen = false
     //是否是主动拒听
-    private var isDecline = false
+    var isDecline = false
     var mCallingPhone : String? = null
     var mCallingName : String? = null
     private var mCallComingEvent: CallComingEvent? = null
@@ -239,7 +239,6 @@ object SdkUtil {
         SipAudioManager.getInstance().stopRingtone()
         isDecline = decline
         callId?.let { EcSipLib.getInstance(MainApplication.app).rejectCall(it) }
-        resetParams()
     }
 
     /*** 呼出*****/
@@ -260,6 +259,7 @@ object SdkUtil {
 
     //自己挂断
     fun hangup() {
+        isDecline = true
         if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
             Log.i(TAG, "endCall 电话挂断")
         }
@@ -321,6 +321,7 @@ object SdkUtil {
         mDuration = 0
         isMicOff = false
         mCallingPhone = null
-        mCallingName  = null
+        mCallingName = null
+        isDecline = false
     }
 }

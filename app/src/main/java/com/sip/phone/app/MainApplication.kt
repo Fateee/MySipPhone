@@ -9,10 +9,7 @@ import android.os.Process
 import android.util.Log
 import com.easycalltech.ecsdk.EcSipNetworkUtil
 import com.easycalltech.ecsdk.business.location.LocationResult
-import com.easycalltech.ecsdk.event.AccountRegisterEvent
-import com.easycalltech.ecsdk.event.CallComingEvent
-import com.easycalltech.ecsdk.event.CallConfirmedEvent
-import com.easycalltech.ecsdk.event.CallDisconnectEvent
+import com.easycalltech.ecsdk.event.*
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
 import com.ludashi.framework.Framework
@@ -38,6 +35,7 @@ import me.jessyan.autosize.AutoSize
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.onAdaptListener
 import me.weishu.reflection.Reflection
+import org.pjsip.pjsua2.pjsip_inv_state.*
 
 class MainApplication : Application() {
     private val TAG = "MainApplication_hy"
@@ -275,6 +273,7 @@ class MainApplication : Application() {
         InCallFloatManager.instance.dismiss()
         OutCallFloatManager.instance.dismiss()
         CallingFloatManager.instance.dismiss()
+        SdkUtil.resetParams()
 //        ToastUtil.showDebug("呼叫已断开")
     }
 
@@ -291,6 +290,54 @@ class MainApplication : Application() {
         }
         CallingFloatManager.instance.show(SdkUtil.mCallingPhone?:"",SdkUtil.mCallingName?:"")
         OutCallFloatManager.instance.dismiss()
+    }
+
+    /**
+     * 外呼事件
+     * @param event
+     */
+    @EventBusSub(tag = "CallOutEvent")
+    fun callOutgoingCall(event: CallOutEvent) {
+        Log.d(TAG, "### 呼叫外呼事件 " + event.callID)
+//        callId = event.callID
+    }
+
+    /**
+     * 呼叫状态事件
+     * @param event
+     */
+    @EventBusSub(tag = "CallStateEvent")
+    fun callStateCall(event: CallStateEvent) {
+        Log.d(TAG, "### 呼叫状态事件 $event")
+
+        when(event.callStateCode) {
+            PJSIP_INV_STATE_CALLING -> ToastUtil.showToast("呼叫中",true)
+            PJSIP_INV_STATE_EARLY ->
+                if(event.callStatusCode == 183) {
+                    ToastUtil.showToast("对方已振铃，请等候接通",true)
+                }
+        }
+
+        when(event.callStatusCode) {
+            603 -> if (!SdkUtil.isDecline) ToastUtil.showToast("对方拒绝接听",true)//呼出被 拒绝
+            500,501,502,503,504,505,513,555,580 -> ToastUtil.showToast("服务器报错",true)
+            400 -> ToastUtil.showToast("异常请求",true)
+            401 -> ToastUtil.showToast("当前的请求或者账号注册未经授权",true)
+            403 -> ToastUtil.showToast("当前的请求被服务器禁止",true)
+            404 -> ToastUtil.showToast("当前的用户未发现",true)
+            405 -> ToastUtil.showToast("当前的请求不被服务器允许",true)
+            406 -> ToastUtil.showToast("无法协商状态",true)
+            407 -> ToastUtil.showToast("当前的请求或者账号注册未经代理服务器授权",true)
+            408 -> ToastUtil.showToast("呼叫超时",true)
+            480 -> ToastUtil.showToast("被叫临时不可用",true)
+            486 -> ToastUtil.showToast("目标繁忙",true)
+            487 -> ToastUtil.showToast("请求无应答",true)
+            300 -> ToastUtil.showToast("多个转接结果状态",true)
+            301 -> ToastUtil.showToast("被永远迁移状态",true)
+            302 -> ToastUtil.showToast("被临时迁移状态",true)
+            305 -> ToastUtil.showToast("必须使用代理状态",true)
+            380 -> ToastUtil.showToast("call不成功，但是可选择其他的服务",true)
+        }
     }
 
     override fun onTerminate() {

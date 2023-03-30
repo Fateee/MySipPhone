@@ -1,13 +1,32 @@
 package com.sip.phone.util
 
+import android.annotation.SuppressLint
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import com.sip.phone.BuildConfig
 import com.sip.phone.app.MainApplication
 
+
 object ToastUtil {
-    fun showToast(msg: String?) {
+    @SuppressLint("ShowToast")
+    fun showToast(msg: String?, showX : Boolean = false) {
         msg?.let {
-            Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT).show()
+            if (showX) {
+                val toast = Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT)
+                val layout = toast.view
+                if (layout is ViewGroup && layout.childCount > 0) {
+                    val tv = layout.getChildAt(0)
+                    if (tv is TextView) {
+                        tv.text = it
+                    }
+                    XToastUtil.getInstance().showToast(MainApplication.app,layout,toast.gravity,toast.yOffset)
+                } else {
+                    Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

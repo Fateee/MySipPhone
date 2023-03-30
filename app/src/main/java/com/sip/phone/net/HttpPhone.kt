@@ -71,6 +71,7 @@ class HttpPhone private constructor() : NetworkApi(){
 
         @JvmStatic
         fun recordCallLog(needNetwork : Boolean = true) {
+            if (SdkUtil.mDuration <= 0) return
             val body: HashMap<String, String> = HashMap()
             val myPhone = MMKVUtil.decodeString(Constants.PHONE)
             val phone = SdkUtil.mCallingPhone?:""
