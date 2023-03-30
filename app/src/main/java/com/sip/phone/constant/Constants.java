@@ -1,6 +1,8 @@
 package com.sip.phone.constant;
 
 
+import org.jetbrains.annotations.NotNull;
+
 public class Constants {
 //    public static String SIP_HOST = "vorsbc.dictccyun.com";
 //    public static int SIP_PORT = 5060;
@@ -60,4 +62,6 @@ public class Constants {
     public final static String DOMAIN = "DOMAIN";
 
     public final static String SELF_AUTO_LAUNCH = "SELF_AUTO_LAUNCH";
+	@NotNull
+	public static final String NUMBER_SOUND_OFF = "NUMBER_SOUND_OFF";
 }

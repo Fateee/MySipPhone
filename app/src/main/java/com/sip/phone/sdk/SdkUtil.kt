@@ -25,6 +25,7 @@ import com.sip.phone.util.PermissionUtils
 import com.sip.phone.util.ToastUtil
 
 object SdkUtil {
+    var mNumSoundOff: Boolean = false
     var mDuration: Long = 0
     var mBeginTime : String? = null
     var sourceDateList: ArrayList<SortModel?>? = null//联系人数据

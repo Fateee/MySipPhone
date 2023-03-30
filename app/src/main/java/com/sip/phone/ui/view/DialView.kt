@@ -15,7 +15,9 @@ import android.widget.EditText
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
+import com.ec.utils.SipAudioManager
 import com.sip.phone.R
+import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.util.ContactUtil
 import kotlinx.android.synthetic.main.dial_view.view.*
@@ -49,6 +51,8 @@ class DialView @JvmOverloads constructor(
         dialpad_7?.setOnClickListener(this)
         dialpad_8?.setOnClickListener(this)
         dialpad_9?.setOnClickListener(this)
+        dialpad_star?.setOnClickListener(this)
+        dialpad_pound?.setOnClickListener(this)
         remove_call?.setOnClickListener {
             onDelete(it)
         }
@@ -139,6 +143,9 @@ class DialView @JvmOverloads constructor(
 
     fun onDialpad(viewGroup: ViewGroup) {
         val textView = viewGroup.getChildAt(0) as TextView
+        if (!SdkUtil.mNumSoundOff) {
+            SipAudioManager.getInstance().playDTMF(textView.text.toString())
+        }
         mDialpadInput?.append(textView.text)
         if (mDialViewListener != null) {
             mDialViewListener!!.inputChange()

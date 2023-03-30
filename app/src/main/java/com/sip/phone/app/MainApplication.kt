@@ -57,7 +57,12 @@ class MainApplication : Application() {
         }
         initAutoSize()
         initRegister()
+        initSipAudio()
+    }
+
+    private fun initSipAudio() {
         SipAudioManager.getInstance().initialise(this)
+        SdkUtil.mNumSoundOff = MMKVUtil.decodeBoolean(Constants.NUMBER_SOUND_OFF) ?: false
     }
 
     private fun initAutoSize() {

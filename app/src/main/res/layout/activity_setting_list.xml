@@ -21,13 +21,13 @@
 <!--            app:icon="@drawable/icon_push"-->
 <!--            app:title="@string/push_set"-->
 <!--            app:show_arraw="true" />-->
-<!--        <com.sip.phone.ui.view.SetItemLayout-->
-<!--            android:id="@+id/setlist_ring"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="80dp"-->
-<!--            app:icon="@drawable/icon_ring"-->
-<!--            app:title="@string/ring_set"-->
-<!--            app:show_arraw="true" />-->
+        <com.sip.phone.ui.view.SetItemLayout
+            android:id="@+id/setlist_ring"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            app:icon="@drawable/icon_ring"
+            app:title="拨号按键音"
+            app:show_arraw="false" />
 
 <!--        <com.sip.phone.ui.view.SetItemLayout-->
 <!--            android:id="@+id/setlist_cache_clear"-->
