@@ -49,7 +49,7 @@ class InCallFloatView {
     private var innerAlphaAnimation : AlphaAnimation? = null
     private var outerScaleAnimation : ScaleAnimation? = null
     private var outerAlphaAnimation : AlphaAnimation? = null
-
+    private var phoneNumber : String? = null
     init {
         initView()
     }
@@ -113,7 +113,7 @@ class InCallFloatView {
             //接听电话
             tvPhonePickUp?.setOnClickListener {
                 SdkUtil.answer(mCallComingEvent)
-                SdkUtil.mCallingPhone = mCallComingEvent?.displayName?.substringBefore("@")?:"未知号码"
+                SdkUtil.mCallingPhone = phoneNumber
                 SdkUtil.mCallingName = tvCallName?.text?.toString()?:""
                 CallingFloatManager.instance.show(SdkUtil.mCallingPhone!!,SdkUtil.mCallingName!!)
                 dismiss()
@@ -165,16 +165,20 @@ class InCallFloatView {
     }
 
     private fun initPhoneView(callComingEvent: CallComingEvent?) {
-        val phoneNumber = callComingEvent?.displayName?.substringBefore("@")
-        phoneNumber?.let {
-            tvCallNumber?.text = it
-//            InCallActivity.getPhoneBelong(it, tvCallRemark)
-//            ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
-//                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
-//                    tvCallName?.text = contentCallLog?.displayName ?: "未知"
-//                }
-//            })
+        phoneNumber = callComingEvent?.displayName?.substringBefore("@")?:callComingEvent?.displayName
+        if (phoneNumber?.startsWith("0086") == true) {
+            phoneNumber = phoneNumber?.replaceFirst("0086","")
         }
+        tvCallNumber?.text = phoneNumber
+//        phoneNumber?.let {
+//            tvCallNumber?.text = it
+////            InCallActivity.getPhoneBelong(it, tvCallRemark)
+////            ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
+////                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
+////                    tvCallName?.text = contentCallLog?.displayName ?: "未知"
+////                }
+////            })
+//        }
 //        tvCallRemark?.text = city
     }
 
