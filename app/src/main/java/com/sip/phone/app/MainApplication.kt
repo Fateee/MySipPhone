@@ -207,7 +207,11 @@ class MainApplication : Application() {
         if (top_activity is LoginActivity) {
             phone = top_activity?.phoneNumEt?.text?.toString()?.trim()
         }
-        SdkUtil.registerSuccess(event, phone)
+        SdkUtil.registerSuccess(event, phone) {
+            if (top_activity is LoginActivity) {
+                top_activity?.finish()
+            }
+        }
     }
 
     /**

@@ -67,4 +67,44 @@
         <item name="android:windowBackground">@android:color/transparent</item><!--背景透明-->
         <item name="android:backgroundDimEnabled">true</item><!--模糊-->
     </style>
+
+    <style name="MySwitchTheme">
+        <item name="colorControlActivated">@color/c4CA4FF</item>
+        <item name="colorSwitchThumbNormal">#FFF1F1F1</item>
+        <item name="android:colorForeground">#FF2F2F2F</item>
+    </style>
+    <declare-styleable name="setItemLayout">
+        <attr name="bg" format="color|reference"/>
+        <attr name="icon" format="reference"/>
+        <attr name="title" format="string|reference"/>
+        <attr name="title_width" format="dimension"/>
+        <attr name="title_color" format="color"/>
+        <attr name="edit_hint" format="string|reference"/>
+        <attr name="sub_title" format="string|reference"/>
+        <attr name="sub_title_code" format="string"/>
+        <attr name="sub_title1" format="string"/>
+        <attr name="is_show_switch" format="boolean"/>
+        <attr name="show_switch_value" format="boolean"/>
+        <attr name="show_arraw" format="boolean"/>
+        <attr name="right_icon" format="reference"/>
+        <attr name="hide_divider" format="boolean"/>
+        <attr name="edit_type">
+            <enum name="normal" value="0"/>
+            <enum name="number" value="1"/>
+            <enum name="char_num" value="2"/>
+            <enum name="numpassword" value="3"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="titleView" >
+        <attr name="titleBgColor" format="reference"/>
+        <attr name="lefticon" format="reference"/>
+        <attr name="lefttitle" format="string"/>
+        <attr name="toolbar_title" format="string|reference"/>
+        <attr name="titleColor" format="reference"/>
+        <attr name="righticon" format="reference"/>
+        <attr name="righttitle" format="string|reference"/>
+        <attr name="rightTitleColor" format="reference"/>
+        <attr name="showDivider" format="boolean"/>
+    </declare-styleable>
 </resources>

@@ -45,6 +45,7 @@ public class Constants {
 
     public static String SipAccountID = "";
 
+    public static int REQUEST_CANCEL_ACCOUNT = 100;
 
     ////////////取出值key 常量值
     public final static String PHONE = "PHONE";

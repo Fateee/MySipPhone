@@ -1,5 +1,6 @@
 package com.sip.phone.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
 import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.ui.setting.SettingActivity
 import com.sip.phone.ui.view.DialView
 import kotlinx.android.synthetic.main.fragment_home.*
 
@@ -70,6 +72,10 @@ class HomeFragment : Fragment() {
 
             override fun onLongEvent(number: String?) {}
         })
+        setting?.setOnClickListener {
+            val intent = Intent(context,SettingActivity::class.java)
+            activity?.startActivityForResult(intent, Constants.REQUEST_CANCEL_ACCOUNT)
+        }
     }
 
     fun setContactInfo(ret: Array<String?>) {

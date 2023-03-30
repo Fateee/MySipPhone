@@ -126,6 +126,10 @@ class MainActivity : BaseActivity() {
             val phoneNumber = data?.getData()?.getSchemeSpecificPart();
             // 在这里可以将电话号码返回给调用方应用程序
             Log.i("huyi","phoneNumber == $phoneNumber")
+        } else if (requestCode == Constants.REQUEST_CANCEL_ACCOUNT && resultCode == RESULT_OK) {
+            setResult(RESULT_OK)
+            finish()
+            LoginActivity.startActivity()
         }
     }
 

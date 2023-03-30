@@ -30,7 +30,7 @@ object SdkUtil {
     var sourceDateList: ArrayList<SortModel?>? = null//联系人数据
     var callRecords: Map<String, String>? = null
     private const val TAG = "SdkUtil_hy"
-    private var isOnceStartMainActivity = true;
+    var isOnceStartMainActivity = true;
     var doMain = "sc.vopbx.dict.cn"
 
     var isCallOuting = false; //是否正在呼出
@@ -184,12 +184,13 @@ object SdkUtil {
     }
 
     fun registerSuccess(event: AccountRegisterEvent, phone: String?, callback: (() -> Unit)? = null) {
-        if (event.registrationStateCode == 200) {
-            Log.i(TAG,"注册成功-----")
+        when(event.registrationStateCode) {
+            200 -> {
+                Log.i(TAG,"注册成功-----")
 //            ToastUtil.showDebug("注册成功：")
-            //   acquireWakeLock();
-            // RegisterOKActivity.start(this, uname.getText().toString());
-            if (isOnceStartMainActivity) {
+                //   acquireWakeLock();
+                // RegisterOKActivity.start(this, uname.getText().toString());
+//            if (isOnceStartMainActivity) {
 //                val extNo = accountEditText.text.toString()
 //                val extPwd = pwdEditText.text.toString()
                 ///注册成功，保存账号密码
@@ -201,19 +202,18 @@ object SdkUtil {
                     //mine
                     MMKVUtil.encode(Constants.ACCOUNT_ID, event.accountID)
                     MMKVUtil.encode(Constants.REGISTER_STATE_CODE, event.registrationStateCode)
-
-                    MainActivity.startActivity(event)
                     callback?.invoke()
+                    MainActivity.startActivity(event)
+//                }
+//                isOnceStartMainActivity = false;
                 }
-                isOnceStartMainActivity = false;
             }
-
-        } else if (event.registrationStateCode == 408) {
-            ToastUtil.showToast("注册超时：")
-            //  releaseWakeLock();
-        } else {
-            ToastUtil.showToast("注册结果：代码:" + event.registrationStateCode)
-            //   releaseWakeLock();
+            408 -> ToastUtil.showToast("注册超时")
+            403 -> ToastUtil.showToast("不允许注册")
+            404 -> ToastUtil.showToast("没有发现分机")
+            201 -> ToastUtil.showToast("已取消注册")
+            503 -> ToastUtil.showToast("服务不可用")
+            else -> ToastUtil.showToast("注册结果：代码:" + event.registrationStateCode)
         }
     }
 

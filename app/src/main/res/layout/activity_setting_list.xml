@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data class="SettingBinding">
+
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+        <com.sip.phone.ui.view.SimpleToolbar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:toolbar_title="设置" />
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_push"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_push"-->
+<!--            app:title="@string/push_set"-->
+<!--            app:show_arraw="true" />-->
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_ring"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_ring"-->
+<!--            app:title="@string/ring_set"-->
+<!--            app:show_arraw="true" />-->
+
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_cache_clear"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_clean"-->
+<!--            app:title="@string/clear_cache"-->
+<!--            app:show_arraw="true"/>-->
+<!--        <View-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="7dp"-->
+<!--            android:background="@color/cFAFAFA"/>-->
+
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_lockscreen"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/ic_setlist_lock_screen"-->
+<!--            app:title="@string/setlist_lockscreen"-->
+<!--            app:show_arraw="true"/>-->
+<!--        <View-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="7dp"-->
+<!--            android:background="@color/cFAFAFA"/>-->
+
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_feedback"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_feedback"-->
+<!--            app:title="@string/feed_back"-->
+<!--            app:show_arraw="true"/>-->
+
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_account_set"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_account_set"-->
+<!--            app:title="@string/account_set"-->
+<!--            app:show_arraw="true"/>-->
+<!--        <View-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="7dp"-->
+<!--            android:background="@color/cFAFAFA"/>-->
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_about_us"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:icon="@drawable/icon_aboutus"-->
+<!--            app:title="@string/about_us"-->
+<!--            app:show_arraw="true"/>-->
+
+<!--        <com.sip.phone.ui.view.SetItemLayout-->
+<!--            android:id="@+id/setlist_privacy"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="80dp"-->
+<!--            app:title="@string/privacy"-->
+<!--            app:show_arraw="true"/>-->
+<!--        <View-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="11.5dp"-->
+<!--            android:background="@color/cF3F3F3"/>-->
+        <com.sip.phone.ui.view.SimpleCornerTextView
+            android:id="@+id/logout"
+            android:layout_width="match_parent"
+            android:layout_height="37dp"
+            android:layout_marginLeft="47dp"
+            android:layout_marginRight="47dp"
+            android:layout_marginTop="33dp"
+            app:bgColor="@color/white"
+            app:radius="3.5dp"
+            app:borderColor="@color/cCFCFCF"
+            app:borderWidth="1dp"
+            android:text="退出登录"
+            android:textSize="15sp"
+            android:textColor="@color/c4CA4FF"
+            android:gravity="center"/>
+    </LinearLayout>
+</layout>
