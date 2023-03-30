@@ -72,11 +72,12 @@ object SdkUtil {
 //                        startActivity(intent)
                     }
                     okCallback?.invoke(t.retcode)
-                    ToastUtil.showDebug("ret code:${t.retcode} msg:${t.retmsg} ")
+                    ToastUtil.showToast("${t.retmsg} ")
                 }
 
                 override fun fail(e: Throwable?) {
                     e?.printStackTrace()
+                    ToastUtil.showToast("异常: ${e?.message}")
                 }
             })
     }
@@ -208,10 +209,10 @@ object SdkUtil {
             }
 
         } else if (event.registrationStateCode == 408) {
-            ToastUtil.showDebug("注册超时：")
+            ToastUtil.showToast("注册超时：")
             //  releaseWakeLock();
         } else {
-            ToastUtil.showDebug("注册结果：代码:" + event.registrationStateCode)
+            ToastUtil.showToast("注册结果：代码:" + event.registrationStateCode)
             //   releaseWakeLock();
         }
     }
