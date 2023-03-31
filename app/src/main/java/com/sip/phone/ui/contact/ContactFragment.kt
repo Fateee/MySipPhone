@@ -29,6 +29,7 @@ import com.sip.contact.sortlist.SortModel
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.ToastUtil
 import java.util.*
 import kotlin.collections.ArrayList
@@ -43,10 +44,8 @@ class ContactFragment : Fragment() {
     private var adapter: SortAdapter? = null
     private var mClearEditText: ClearEditText? = null
 
-    private var characterParser: CharacterParser? = null
-//    private var sourceDateList: ArrayList<SortModel?>? = null
-
-    private var pinyinComparator: PinyinComparator? = null
+    private var characterParser: CharacterParser? = CharacterParser.getInstance()
+    private var pinyinComparator: PinyinComparator? = PinyinComparator()
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -75,9 +74,9 @@ class ContactFragment : Fragment() {
     }
 
     private fun initData() {
-        // 实例化汉字转拼音类
-        characterParser = CharacterParser.getInstance()
-        pinyinComparator = PinyinComparator()
+//        // 实例化汉字转拼音类
+//        characterParser = CharacterParser.getInstance()
+//        pinyinComparator = PinyinComparator()
         sideBar?.setTextView(dialog)
 
         // 设置右侧触摸监听
@@ -103,43 +102,63 @@ class ContactFragment : Fragment() {
             }
         if (SdkUtil.sourceDateList.isNullOrEmpty()) {
             SdkUtil.checkMyPermissions(context) {
-                ContactAsyncTask().execute(0)
+                ContactUtil.getAllContact {
+                    initListView()
+                }
+//                ContactAsyncTask().execute(0)
             }
         } else {
             initListView()
         }
     }
 
-    inner class ContactAsyncTask : AsyncTask<Int?, Int?, Int>() {
-
-        override fun doInBackground(vararg arg0: Int?): Int {
-            var result = -1
-            SdkUtil.callRecords = ConstactUtil.getAllCallRecords(MainApplication.app)
-            result = 1
-            return result
-        }
-
-        override fun onPostExecute(result: Int) {
-            super.onPostExecute(result)
-            if (result == 1) {
-                val constact: MutableList<String> = ArrayList()
-                val keys: Iterator<String>? = SdkUtil.callRecords?.keys?.iterator()
-                while (keys?.hasNext() == true) {
-                    val key = keys.next()
-                    constact.add(key)
-                }
-                val names = constact.toTypedArray()
-//                names = constact.toArray<String>(names)
-//                names = constact.toTypedArray()
-                SdkUtil.sourceDateList = filledData(names)
-
-                // 根据a-z进行排序源数据
-                Collections.sort(SdkUtil.sourceDateList, pinyinComparator)
-                initListView()
-            }
-        }
-
-    }
+//    class ContactAsyncTask : AsyncTask<Int?, Int?, Int>() {
+//
+//        override fun doInBackground(vararg arg0: Int?): Int {
+//            var result = -1
+//            SdkUtil.callRecords = ConstactUtil.getAllCallRecords(MainApplication.app)
+//            result = 1
+//            return result
+//        }
+//
+//        override fun onPostExecute(result: Int) {
+//            super.onPostExecute(result)
+//            if (result == 1) {
+////                val constact: MutableList<String> = ArrayList()
+//                SdkUtil.sourceDateList = ArrayList()
+//                SdkUtil.callRecords?.forEach { (k, v) ->
+//                    val sortModel = SortModel()
+//                    sortModel.name = k
+//                    sortModel.number = v.replace("-", "")?.replace(" ", "")
+//                    // 汉字转换成拼音
+//                    val pinyin = characterParser?.getSelling(k)
+//                    val sortString = pinyin?.substring(0, 1)?.toUpperCase()
+//
+//                    // 正则表达式，判断首字母是否是英文字母
+//                    if (sortString?.matches(Regex("[A-Z]")) == true) {
+//                        sortModel.sortLetters = sortString.toUpperCase()
+//                    } else {
+//                        sortModel.sortLetters = "#"
+//                    }
+//                    SdkUtil.sourceDateList?.add(sortModel)
+//                }
+////                val keys: Iterator<String>? = SdkUtil.callRecords?.keys?.iterator()
+////                while (keys?.hasNext() == true) {
+////                    val key = keys.next()
+////                    constact.add(key)
+////                }
+////                val names = constact.toTypedArray()
+//////                names = constact.toArray<String>(names)
+//////                names = constact.toTypedArray()
+////                SdkUtil.sourceDateList = filledData(names)
+//
+//                // 根据a-z进行排序源数据
+//                Collections.sort(SdkUtil.sourceDateList, pinyinComparator)
+//                initListView()
+//            }
+//        }
+//
+//    }
 
     private fun initListView() {
         adapter = SortAdapter(context, SdkUtil.sourceDateList)
@@ -174,25 +193,25 @@ class ContactFragment : Fragment() {
      * @param date
      * @return
      */
-    private fun filledData(date: Array<String>): ArrayList<SortModel?>? {
-        val mSortList = ArrayList<SortModel?>()
-        for (i in date.indices) {
-            val sortModel = SortModel()
-            sortModel.name = date[i]
-            // 汉字转换成拼音
-            val pinyin = characterParser?.getSelling(date[i])
-            val sortString = pinyin?.substring(0, 1)?.toUpperCase()
-
-            // 正则表达式，判断首字母是否是英文字母
-            if (sortString?.matches(Regex("[A-Z]")) == true) {
-                sortModel.sortLetters = sortString.toUpperCase()
-            } else {
-                sortModel.sortLetters = "#"
-            }
-            mSortList.add(sortModel)
-        }
-        return mSortList
-    }
+//    private fun filledData(date: Array<String>): ArrayList<SortModel?>? {
+//        val mSortList = ArrayList<SortModel?>()
+//        for (i in date.indices) {
+//            val sortModel = SortModel()
+//            sortModel.name = date[i]
+//            // 汉字转换成拼音
+//            val pinyin = characterParser?.getSelling(date[i])
+//            val sortString = pinyin?.substring(0, 1)?.toUpperCase()
+//
+//            // 正则表达式，判断首字母是否是英文字母
+//            if (sortString?.matches(Regex("[A-Z]")) == true) {
+//                sortModel.sortLetters = sortString.toUpperCase()
+//            } else {
+//                sortModel.sortLetters = "#"
+//            }
+//            mSortList.add(sortModel)
+//        }
+//        return mSortList
+//    }
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView

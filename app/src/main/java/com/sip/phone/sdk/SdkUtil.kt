@@ -278,7 +278,20 @@ object SdkUtil {
         return isMicOff
     }
 
-    private fun checkPhonePermissions(context: Context?, callback: PermissionUtils.Callback?) {
+//    private fun checkPhonePermissions(context: Context?, callback: PermissionUtils.Callback?) {
+//        val permissions = arrayOf(
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//            Manifest.permission.READ_EXTERNAL_STORAGE,
+//            Manifest.permission.RECORD_AUDIO,
+////            Manifest.permission.REORDER_TASKS,
+////            Manifest.permission.SYSTEM_ALERT_WINDOW,
+//            Manifest.permission.READ_CONTACTS,
+//            Manifest.permission.READ_PHONE_STATE
+//        )
+//        PermissionUtils.checkPermission(context, callback, *permissions)
+//    }
+
+    fun checkMyPermissions(context: Context?, okCallback: (() -> Unit)? = null) {
         val permissions = arrayOf(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -288,11 +301,7 @@ object SdkUtil {
             Manifest.permission.READ_CONTACTS,
             Manifest.permission.READ_PHONE_STATE
         )
-        PermissionUtils.checkPermission(context, callback, *permissions)
-    }
-
-    fun checkMyPermissions(context: Context?, okCallback: (() -> Unit)? = null) {
-        checkPhonePermissions(context, object : PermissionUtils.Callback() {
+        PermissionUtils.checkPermission(context, object : PermissionUtils.Callback() {
             override fun onGranted() {
                 super.onGranted()
                 okCallback?.invoke()
@@ -301,7 +310,7 @@ object SdkUtil {
                 super.onDenied(context)
                 ToastUtil.showToast("拒绝权限申请可能导致功能无法正常使用！")
             }
-        })
+        }, *permissions)
     }
 
     fun isRegistered(): Boolean {

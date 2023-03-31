@@ -114,7 +114,7 @@ class DialView @JvmOverloads constructor(
      * @return
      */
     var number: String?
-        get() = mDialpadInput?.text.toString()
+        get() = mDialpadInput?.text?.toString()?:""
         set(number) {
             mDialpadInput?.setText(number)
         }
@@ -139,6 +139,9 @@ class DialView @JvmOverloads constructor(
 //            return
 //        }
         mDialpadInput?.setText(input)
+        if (mDialViewListener != null) {
+            mDialViewListener!!.inputChange()
+        }
     }
 
     fun onDialpad(viewGroup: ViewGroup) {

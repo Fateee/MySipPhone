@@ -22,6 +22,7 @@ import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
 import com.sip.phone.ui.home.HomeFragment
 import com.sip.phone.ui.login.LoginActivity
+import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
 import com.yushi.eventannotations.EventBusSub
@@ -80,7 +81,9 @@ class MainActivity : BaseActivity() {
 
         navView.setupWithNavController(navController)
 
-        SdkUtil.checkMyPermissions(this)
+        SdkUtil.checkMyPermissions(this) {
+            ContactUtil.getAllContact()
+        }
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)
     }

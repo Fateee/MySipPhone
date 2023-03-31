@@ -1,10 +1,12 @@
 package com.sip.contact.sortlist;
 
-public class SortModel {
+import java.io.Serializable;
+
+public class SortModel implements Serializable {
 
 	private String name;   //显示的数�?
 	private String sortLetters;  //显示数据拼音的首字母
-	
+	private String number;
 	public String getName() {
 		return name;
 	}
@@ -16,5 +18,13 @@ public class SortModel {
 	}
 	public void setSortLetters(String sortLetters) {
 		this.sortLetters = sortLetters;
+	}
+
+	public String getNumber() {
+		return number;
+	}
+
+	public void setNumber(String number) {
+		this.number = number;
 	}
 }

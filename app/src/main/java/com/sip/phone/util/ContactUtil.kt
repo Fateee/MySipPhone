@@ -1,8 +1,11 @@
 package com.sip.phone.util
 
+import android.Manifest
 import android.content.Context
 import android.os.Looper
 import android.provider.ContactsContract
+import com.sip.phone.app.MainApplication
+import com.sip.phone.sdk.SdkUtil
 
 /**
  * Class  : ContactUtil
@@ -68,5 +71,11 @@ object ContactUtil {
 
     interface Callback {
         fun onFinish(contentCallLog: ContactUtil.ContactInfo?)
+    }
+
+    fun getAllContact(callBack : (()->Unit)? = null) {
+        if (PermissionUtils.hasPermissions(MainApplication.app, Manifest.permission.READ_CONTACTS) && SdkUtil.sourceDateList.isNullOrEmpty()) {
+            ContactAsyncTask(callBack).execute(0)
+        }
     }
 }
