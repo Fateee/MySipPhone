@@ -48,6 +48,7 @@ object SdkUtil {
      * 接听
      */
     private var isAnswer = false;
+    var callId : Int? = -1
 
     private fun getSignature(phone : String, channel : String = "cannelA", timestamp : Long = System.currentTimeMillis()): String? {
 //        val timestamp = System.currentTimeMillis()
@@ -333,5 +334,6 @@ object SdkUtil {
         mCallingPhone = null
         mCallingName = null
         isDecline = false
+        callId = -1
     }
 }

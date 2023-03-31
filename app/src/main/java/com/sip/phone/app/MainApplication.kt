@@ -292,7 +292,7 @@ class MainApplication : Application() {
     @EventBusSub(tag = "CallConfirmedEvent")
     fun callConfirmed(event: CallConfirmedEvent) {
         Log.d(TAG, "### 呼叫通话消息 " + event.callID)
-//        callId = event.callID
+        SdkUtil.callId = event.callID
 //        getCall()
         if (SdkUtil.isCallOuting) {
             SdkUtil.mBeginTime = TimeUtil.getNowString()

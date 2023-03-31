@@ -113,4 +113,5 @@
     <color name="text_color_secondary">@color/c747474</color>
     <color name="transparent">#00000000</color>
     <color name="phone_main_color">#1362fa</color>
+    <color name="c333c63">#333c63</color>
 </resources>

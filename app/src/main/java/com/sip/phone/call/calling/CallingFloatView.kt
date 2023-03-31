@@ -12,9 +12,12 @@ import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.TextView
+import com.ec.utils.SipAudioManager
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.ui.view.DialNumberView
+import com.sip.phone.ui.view.SimpleCornerTextView
 import com.sip.phone.util.DateUtils
 import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
@@ -33,8 +36,10 @@ class CallingFloatView {
     private var alphaBg : View? = null
     private var tvCallNumber: TextView? = null
     private var tvPhoneHangUp: TextView? = null
-    private var tvPhoneMute: TextView? = null
-    private var tvPhoneSpeaker: TextView? = null
+    private var tvPhoneMute: SimpleCornerTextView? = null
+    private var tvPhoneSpeaker: SimpleCornerTextView? = null
+    private var tvKeyboard: SimpleCornerTextView? = null
+    private var mDialNumView: DialNumberView? = null
     private var tvCallRemark: TextView? = null
     private var tvCallName: TextView? = null
     // 电话状态判断
@@ -115,6 +120,7 @@ class CallingFloatView {
                 //静音
                 val status = SdkUtil.switchMute()
                 tvPhoneMute?.isSelected = status
+                changeBtBgColor(tvPhoneMute, status)
             }
 
             tvPhoneSpeaker = floatRootView?.findViewById(R.id.speakerCalling)
@@ -122,7 +128,30 @@ class CallingFloatView {
                 //免提
                 val status = SdkUtil.switchSpeaker()
                 tvPhoneSpeaker?.isSelected = status
+                changeBtBgColor(tvPhoneSpeaker, status)
             }
+
+            mDialNumView = floatRootView?.findViewById(R.id.dialNumView)
+            tvKeyboard = floatRootView?.findViewById(R.id.keyboardCalling)
+            tvKeyboard?.setOnClickListener {
+                val status = mDialNumView?.isShown
+                mDialNumView?.visibility = if (status == true) {
+                    tvKeyboard?.isSelected = false
+                    View.GONE
+                } else {
+                    tvKeyboard?.isSelected = true
+                    View.VISIBLE
+                }
+                changeBtBgColor(tvKeyboard, status == false)
+            }
+        }
+    }
+
+    private fun changeBtBgColor(view: SimpleCornerTextView?, status: Boolean) {
+        if (status) {
+            view?.setBackgroundResColor(R.color.white)
+        } else {
+            view?.setBackgroundResColor(R.color.c333c63)
         }
     }
 
@@ -158,6 +187,28 @@ class CallingFloatView {
                     hasShown = false
                     timeDispose?.dispose()
                     alphaBg?.alpha = 0.65f
+
+                    //按键按钮恢复默认状态
+                    if (tvKeyboard?.isSelected == true) {
+                        mDialNumView?.visibility = View.GONE
+                        tvKeyboard?.isSelected = false
+                        changeBtBgColor(tvKeyboard, false)
+                    }
+
+                    //静音按钮恢复默认状态
+                    if (tvPhoneMute?.isSelected == true) {
+                        SipAudioManager.getInstance().muteMicrophone(false)
+                        tvPhoneMute?.isSelected = false
+                        changeBtBgColor(tvPhoneMute, false)
+                    }
+
+                    //免提按钮恢复默认状态
+                    if (tvPhoneSpeaker?.isSelected == true) {
+                        SipAudioManager.getInstance().setSpeakerMode(false)
+                        tvPhoneSpeaker?.isSelected = false
+                        changeBtBgColor(tvPhoneSpeaker, false)
+                    }
+
                     floatRootView?.postDelayed({//延迟一秒关闭通话界面
                         windowManager?.removeView(floatRootView)
                     },1500)
