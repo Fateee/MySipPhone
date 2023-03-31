@@ -47,6 +47,20 @@
                 android:textCursorDrawable="@null"
                 android:textSize="33sp" />
 
+            <ImageView
+                android:id="@+id/delete_num"
+                style="@style/BorderlessBackgroud"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:padding="11dp"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_dial_remove_call"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="17dp"
+                android:visibility="gone"/>
         </RelativeLayout>
 
         <TextView

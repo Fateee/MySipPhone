@@ -30,7 +30,7 @@ class ContactAsyncTask(private val callBack : (()->Unit)? = null) : AsyncTask<In
             SdkUtil.callRecords?.forEach { (k, v) ->
                 val sortModel = SortModel()
                 sortModel.name = k
-                sortModel.number = v.replace("-", "")?.replace(" ", "")
+                sortModel.number = v?.replace("-", "")?.replace(" ", "")
                 // 汉字转换成拼音
                 val pinyin = characterParser?.getSelling(k)
                 val sortString = pinyin?.substring(0, 1)?.toUpperCase()

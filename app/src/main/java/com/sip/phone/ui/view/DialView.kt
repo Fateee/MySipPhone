@@ -1,6 +1,8 @@
 package com.sip.phone.ui.view
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.provider.ContactsContract
@@ -67,10 +69,19 @@ class DialView @JvmOverloads constructor(
                 startActivityForResult(context, intent, MainActivity.PICK_CONTACT_REQUEST,null)
             }
         }
+        delete_num?.setOnClickListener {
+            onDelete(it)
+        }
         mDialpadInput?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val ret = ContactUtil.getContentCallLog(context,s?.toString())
-                setContactName(ret?.displayName)
+                val value = s?.toString()
+                delete_num?.visibility = if (value.isNullOrEmpty()) {
+                    View.GONE
+                } else {
+                    val ret = ContactUtil.getContentCallLog(context,value)
+                    setContactName(ret?.displayName)
+                    View.VISIBLE
+                }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -79,6 +90,37 @@ class DialView @JvmOverloads constructor(
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
         })
+        mDialpadInput?.setOnLongClickListener { view ->
+            val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            if (clipboard.hasPrimaryClip()) {
+                view.showContextMenu()
+            }
+            true
+        }
+
+        mDialpadInput?.setOnCreateContextMenuListener { menu, view, menuInfo ->
+            val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            menu.add(0, android.R.id.copy, 0, "复制").setOnMenuItemClickListener {
+                try {
+                    val clip = ClipData.newPlainText("text", mDialpadInput?.text.toString())
+                    clipboard.setPrimaryClip(clip)
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
+                true
+            }
+            menu.add(0, android.R.id.paste, 0, "粘贴").setOnMenuItemClickListener {
+                try {
+                    val item = clipboard.primaryClip?.getItemAt(0)
+                    if (item != null) {
+                        mDialpadInput?.setText(item.text)
+                    }
+                } catch (e : Exception) {
+                    e.printStackTrace()
+                }
+                true
+            }
+        }
     }
 
     interface DialViewListener {
