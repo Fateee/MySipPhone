@@ -72,13 +72,13 @@
 <!--            android:layout_width="match_parent"-->
 <!--            android:layout_height="7dp"-->
 <!--            android:background="@color/cFAFAFA"/>-->
-<!--        <com.sip.phone.ui.view.SetItemLayout-->
-<!--            android:id="@+id/setlist_about_us"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="80dp"-->
-<!--            app:icon="@drawable/icon_aboutus"-->
-<!--            app:title="@string/about_us"-->
-<!--            app:show_arraw="true"/>-->
+        <com.sip.phone.ui.view.SetItemLayout
+            android:id="@+id/setlist_about_us"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            app:icon="@drawable/icon_aboutus"
+            app:title="关于"
+            app:show_arraw="false"/>
 
 <!--        <com.sip.phone.ui.view.SetItemLayout-->
 <!--            android:id="@+id/setlist_privacy"-->
@@ -86,24 +86,22 @@
 <!--            android:layout_height="80dp"-->
 <!--            app:title="@string/privacy"-->
 <!--            app:show_arraw="true"/>-->
-<!--        <View-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="11.5dp"-->
-<!--            android:background="@color/cF3F3F3"/>-->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
         <com.sip.phone.ui.view.SimpleCornerTextView
             android:id="@+id/logout"
             android:layout_width="match_parent"
             android:layout_height="37dp"
             android:layout_marginLeft="47dp"
             android:layout_marginRight="47dp"
-            android:layout_marginTop="33dp"
-            app:bgColor="@color/white"
+            android:layout_marginBottom="47dp"
+            app:bgColor="@color/c4CA4FF"
             app:radius="3.5dp"
-            app:borderColor="@color/cCFCFCF"
-            app:borderWidth="1dp"
             android:text="退出登录"
             android:textSize="15sp"
-            android:textColor="@color/c4CA4FF"
+            android:textColor="@color/white"
             android:gravity="center"/>
     </LinearLayout>
 </layout>

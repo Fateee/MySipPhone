@@ -3,6 +3,7 @@ package com.sip.phone.ui.setting
 import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.sip.phone.R
+import com.sip.phone.BuildConfig
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
@@ -21,6 +22,10 @@ class SettingActivity : BaseActivity() {
             EcphoneSdk.unRegister()
             setResult(RESULT_OK)
             finish()
+        }
+        setlist_about_us?.setSubTitle("当前版本：V${BuildConfig.VERSION_NAME}")
+        setlist_about_us?.setOnClickListener {
+
         }
     }
 }

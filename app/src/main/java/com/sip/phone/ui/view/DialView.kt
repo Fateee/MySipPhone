@@ -186,8 +186,12 @@ class DialView @JvmOverloads constructor(
         }
     }
 
-    fun onDialpad(viewGroup: ViewGroup) {
-        val textView = viewGroup.getChildAt(0) as TextView
+    fun onDialpad(v: View?) {
+        val textView = when(v) {
+            is ViewGroup -> v.getChildAt(0) as TextView
+            is TextView -> v
+            else -> return
+        }
         if (!SdkUtil.mNumSoundOff) {
             SipAudioManager.getInstance().playDTMF(textView.text.toString())
         }
@@ -230,9 +234,7 @@ class DialView @JvmOverloads constructor(
     }
 
     override fun onClick(v: View?) {
-        if (v is ViewGroup) {
-            onDialpad(v)
-        }
+        onDialpad(v)
     }
 
     fun setContactInfo(ret: Array<String?>) {

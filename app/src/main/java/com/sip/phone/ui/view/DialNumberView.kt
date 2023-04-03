@@ -38,15 +38,17 @@ class DialNumberView @JvmOverloads constructor(
     }
 
     override fun onClick(v: View?) {
-        if (v is ViewGroup) {
-            val textView = v.getChildAt(0) as TextView
-            val text = textView.text.toString()
-            if (!SdkUtil.mNumSoundOff) {
-                SipAudioManager.getInstance().playDTMF(text)
-            }
-            SdkUtil.callId?.let {
-                EcphoneSdk.sendDtmf(it,text)
-            }
+        val textView = when(v) {
+            is ViewGroup -> v.getChildAt(0) as TextView
+            is TextView -> v
+            else -> return
+        }
+        val text = textView.text.toString()
+        if (!SdkUtil.mNumSoundOff) {
+            SipAudioManager.getInstance().playDTMF(text)
+        }
+        SdkUtil.callId?.let {
+            EcphoneSdk.sendDtmf(it,text)
         }
     }
 
