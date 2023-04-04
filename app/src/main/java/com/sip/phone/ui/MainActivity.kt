@@ -13,20 +13,21 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.easycalltech.ecsdk.EcSipNetworkUtil
 import com.easycalltech.ecsdk.event.AccountRegisterEvent
+import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
 import com.sip.phone.ui.home.HomeFragment
 import com.sip.phone.ui.login.LoginActivity
+import com.sip.phone.update.UpdateDialog
 import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
-import com.yushi.eventannotations.EventBusSub
-import com.yushi.eventbustag.EventBusTag
 
 class MainActivity : BaseActivity() {
     private val TAG = "MainActivity_hy"
@@ -86,6 +87,7 @@ class MainActivity : BaseActivity() {
         }
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)
+        checkAppVersion()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -169,6 +171,28 @@ class MainActivity : BaseActivity() {
             ret[1] = phoneNumber
         }
         return ret
+    }
+
+    private fun checkAppVersion() {
+        val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
+        HttpPhone.loginAndCheck(phoneCached) {
+            when(it.code) {
+                0,10 -> {
+                    if (10 == it.code) {
+                        UpdateDialog.show(this, it.data)
+                    } else if (SdkUtil.channelId?.equals(it.data?.channelId) == false || SdkUtil.publicKey?.equals(it.data?.publicKey) == false) {
+                        //如果使用中获取的配置数据与本地数据不同，则强制退出
+                        ToastUtil.showToast("配置数据改变，退出登录")
+                        SdkUtil.channelId = null
+                        SdkUtil.publicKey = null
+                        MMKVUtil.encode(Constants.PHONE,"")
+                        EcphoneSdk.unRegister()
+                        LoginActivity.startActivity()
+                        finish()
+                    }
+                }
+            }
+        }
     }
 
 //    override fun onCreate(savedInstanceState: Bundle?) {

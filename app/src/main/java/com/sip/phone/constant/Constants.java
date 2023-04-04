@@ -64,4 +64,7 @@ public class Constants {
     public final static String SELF_AUTO_LAUNCH = "SELF_AUTO_LAUNCH";
 	@NotNull
 	public static final String NUMBER_SOUND_OFF = "NUMBER_SOUND_OFF";
+
+    public final static String CHANNEL_ID = "CHANNEL_ID";
+    public final static String PUBLIC_KEY = "PUBLIC_KEY";
 }

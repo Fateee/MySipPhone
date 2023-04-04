@@ -15,4 +15,6 @@ interface PhoneApiList {
     @POST("yestone/log")
     fun recordCallLog(@Body map: Map<String, String>?) : Observable<Response<String>>
 
+    @POST("yestone/login")
+    fun loginAndCheck(@Body map: Map<String, String>?) : Observable<Response<String>>
 }

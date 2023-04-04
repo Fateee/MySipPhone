@@ -11,13 +11,13 @@ import com.easycalltech.ecsdk.event.CallComingEvent
 import com.ec.encrypt.Base64
 import com.ec.encrypt.DataUtils
 import com.ec.encrypt.RSAEncrypt
-import com.ec.net.LocalConstant
 import com.ec.net.entity.BaseResponse
 import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.ec.utils.SipAudioManager
 import com.sip.contact.sortlist.SortModel
 import com.sip.phone.app.MainApplication
+import com.sip.phone.bean.AppInfoBean
 import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.ui.MainActivity
@@ -25,6 +25,9 @@ import com.sip.phone.util.PermissionUtils
 import com.sip.phone.util.ToastUtil
 
 object SdkUtil {
+    var publicKey: String? = null
+    var channelId: String? = null
+    var loginSmsCode : Int = -1
     var mNumSoundOff: Boolean = false
     var mDuration: Long = 0
     var mBeginTime : String? = null
@@ -49,25 +52,34 @@ object SdkUtil {
      */
     private var isAnswer = false;
     var callId : Int? = -1
-
-    private fun getSignature(phone : String, channel : String = "cannelA", timestamp : Long = System.currentTimeMillis()): String? {
+    private fun getSignature(phone : String, timestamp : Long = System.currentTimeMillis()): String? {
 //        val timestamp = System.currentTimeMillis()
+        if (isChannelEmpty()) {
+            ToastUtil.showToast("异常：渠道为空")
+            return null
+        }
+        if (isPublicKeyEmpty()) {
+            ToastUtil.showToast("异常：公钥为空")
+            return null
+        }
         val encrypt = RSAEncrypt.encrypt(
-            RSAEncrypt.loadPublicKeyByStr(LocalConstant.ENCODE_PUBLIC_KEY),
-            "{\"telephone\":\"$phone\",\"channel\":\"$channel\",\"timestamp\":${timestamp}}".toByteArray()
+            RSAEncrypt.loadPublicKeyByStr(publicKey),
+            "{\"telephone\":\"$phone\",\"channel\":\"$channelId\",\"timestamp\":${timestamp}}".toByteArray()
         )
         return Base64.encode(encrypt)
     }
 
     private fun init(
         signature: String,
-        channel: String = "cannelA",
         timestamp: Long = System.currentTimeMillis(),
         okCallback: ((String?) -> Unit)?
     ) {
-        EcphoneSdk.init(MainApplication.app, doMain, channel, "$timestamp", signature, object : EcphoneSdk.ResponseCallback<String> {
+        if (isChannelEmpty()) {
+            ToastUtil.showToast("异常：渠道为空")
+            return
+        }
+        EcphoneSdk.init(MainApplication.app, doMain, channelId!!, "$timestamp", signature, object : EcphoneSdk.ResponseCallback<String> {
                 override fun success(t: BaseResponse<String>) {
-                    //todo hy save params
                     if (TextUtils.equals(t.retcode, "6")) {
 //                        val intent:Intent = Intent(this@LoginActivity, BindActivity::class.java)
 //                        intent.putExtra("phone",phone)
@@ -91,8 +103,15 @@ object SdkUtil {
      * 4.跳转至拨号界面
      **/
     fun initAndBindLoginFlow(phone: String, vcode: String="", loginBindAction : Boolean = false, callback: ((String?) -> Unit)? = null) {
+        Log.i(TAG,"initAndBindLoginFlow channelId: $channelId $publicKey")
+        if (isChannelEmpty()) {
+            ToastUtil.showToast("异常：渠道为空")
+            return
+        }
+//        Log.i(TAG,"initAndBindLoginFlow channelId 111 $channelId $publicKey")
         val timestamp = System.currentTimeMillis()
         val signature = getSignature(phone, timestamp = timestamp) ?: return ToastUtil.showToast("initAndBind signature为空")
+//        Log.i(TAG,"initAndBindLoginFlow channelId 222 $channelId $publicKey")
         if (loginBindAction) {
             bind(phone,vcode) {
                 initAndBindLoginFlow(phone,vcode,false, callback)
@@ -118,10 +137,14 @@ object SdkUtil {
     }
 
     private fun sendSmsCode(phone: String, timerCallback: (() -> Unit)?) {
+        if (isChannelEmpty()) {
+            ToastUtil.showToast("异常：渠道为空")
+            return
+        }
         val timestamp = System.currentTimeMillis()
         val encryptString = getSignature(phone, timestamp = timestamp) ?: return
         EcphoneSdk.sendRandomCode(
-            "cannelA",
+            channelId!!,
             "$timestamp",
             encryptString,
             DataUtils.getMD5DeviceId(MainApplication.app),
@@ -138,10 +161,14 @@ object SdkUtil {
     }
 
     private fun bind(phone: String, vcode: String, okCallback: (() -> Unit)?) {
+        if (isChannelEmpty()) {
+            ToastUtil.showToast("异常：渠道为空")
+            return
+        }
         val timestamp = System.currentTimeMillis()
         val encryptString = getSignature(phone, timestamp = timestamp) ?: return
         EcphoneSdk.bind(
-            "cannelA",
+            channelId!!,
             DataUtils.getMD5DeviceId(MainApplication.app),
             "$timestamp",
             encryptString,
@@ -335,5 +362,33 @@ object SdkUtil {
         mCallingName = null
         isDecline = false
         callId = -1
+        loginSmsCode = -1
+    }
+
+    fun generateRandomNumber(): Int {
+        val random = java.util.Random()
+        loginSmsCode = random.nextInt(900000) + 100000
+        return loginSmsCode
+    }
+
+    fun isChannelEmpty() : Boolean {
+        if (channelId == null) {
+            channelId = MMKVUtil.decodeString(Constants.CHANNEL_ID)
+        }
+        return channelId.isNullOrEmpty()
+    }
+
+    fun isPublicKeyEmpty() : Boolean {
+        if (publicKey == null) {
+            publicKey = MMKVUtil.decodeString(Constants.PUBLIC_KEY)
+        }
+        return publicKey.isNullOrEmpty()
+    }
+
+    fun updateAppInfo(data: AppInfoBean.DataBean?) {
+        channelId = data?.channelId
+        publicKey = data?.publicKey
+        MMKVUtil.encode(Constants.CHANNEL_ID, channelId)
+        MMKVUtil.encode(Constants.PUBLIC_KEY, publicKey)
     }
 }

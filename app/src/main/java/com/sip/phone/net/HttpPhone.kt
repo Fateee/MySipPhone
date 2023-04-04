@@ -1,11 +1,17 @@
 package com.sip.phone.net;
 
 import android.util.Log
+import com.alibaba.fastjson.JSON
 import com.common.network.base.NetworkApi
 import com.common.network.errorhandler.ExceptionHandler
 import com.common.network.model.MvvmNetworkObserver
+import com.ec.encrypt.DataUtils
 import com.ec.encrypt.MD5Utils
 import com.ec.utils.MMKVUtil
+import com.sip.phone.R
+import com.sip.phone.app.MainApplication
+import com.sip.phone.bean.AppInfoBean
+import com.sip.phone.BuildConfig
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.NetUtil
@@ -20,7 +26,7 @@ import java.net.ConnectException
 class HttpPhone private constructor() : NetworkApi(){
 
     companion object {
-        var SIGN_KEY = "828B739F7C7B2CC22948F35991F01CDC"
+        var SIGN_KEY = "828b739f7c7b2cc22948f35991f01cdc"
         private const val TAG = "HttpPhone_hy"
         const val STATISTICS_HOST = "http://fastapi.v6.army:8089/"
         val instance = Holder.holder
@@ -35,25 +41,25 @@ class HttpPhone private constructor() : NetworkApi(){
         fun authPhone(phone : String, needNetwork : Boolean = true, okCallback: (() -> Unit)? = null ) {
             val body: HashMap<String, String> = HashMap()
             val myPhone = MMKVUtil.decodeString(Constants.PHONE)
-            val time = System.currentTimeMillis().toString()
+            val time = (System.currentTimeMillis()/1000).toString()
             body["caller"] = myPhone?:""
             body["callee"] = phone
             body["timestamp"] = time
             val str = "caller=$myPhone&callee=$phone&timestamp=$time&key=$SIGN_KEY"
-            val md5Str = MD5Utils.md5(str).uppercase()
+            val md5Str = MD5Utils.md5(str).lowercase()
             body["signature"] = md5Str
             val request = getService(PhoneApiList::class.java).authPhoneNum(body)
             val observer = SaObserver(null, object : MvvmNetworkObserver<Response<String>> {
                 override fun onSuccess(data: Response<String>, isFromCache: Boolean) {
-                    Log.i(TAG,"authPhone onSuccess")
                     val ret = data.body()
+                    Log.i(TAG,"authPhone onSuccess $ret")
                     //{"msg":"认证成功","retCode":0,"signature":"A3CFC018141DC342E18B37DF346635B8","timestamp":1679997410}
                     if (!ret.isNullOrEmpty()) {
                         val json = JSONObject(ret)
-                        if (json.optInt("retCode",-100) == 0) {
+                        if (json.optInt("code",-100) == 0) {
                             okCallback?.invoke()
                         } else {
-                            ToastUtil.showToast(json.optString("msg"))
+                            ToastUtil.showToast(json.optString("message"))
                         }
                     }
                 }
@@ -75,24 +81,26 @@ class HttpPhone private constructor() : NetworkApi(){
             val body: HashMap<String, String> = HashMap()
             val myPhone = MMKVUtil.decodeString(Constants.PHONE)
             val phone = SdkUtil.mCallingPhone?:""
+            val time = (System.currentTimeMillis()/1000).toString()
             body["caller"] = myPhone?:""
             body["callee"] = phone
-            body["beginTime"] = SdkUtil.mBeginTime?:""
+            body["startTime"] = SdkUtil.mBeginTime?:""
             body["duration"] = SdkUtil.mDuration.toString()
-            val str = "caller=$myPhone&callee=$phone&beginTime=${SdkUtil.mBeginTime?:""}&duration=${SdkUtil.mDuration}&key=$SIGN_KEY"
-            val md5Str = MD5Utils.md5(str).uppercase()
+            body["timestamp"] = time
+            val str = "caller=$myPhone&callee=$phone&startTime=${SdkUtil.mBeginTime?:""}&duration=${SdkUtil.mDuration}&timestamp=$time&key=$SIGN_KEY"
+            val md5Str = MD5Utils.md5(str).lowercase()
             body["signature"] = md5Str
             val request = getService(PhoneApiList::class.java).recordCallLog(body)
             val observer = SaObserver(null, object : MvvmNetworkObserver<Response<String>> {
                 override fun onSuccess(data: Response<String>, isFromCache: Boolean) {
-                    Log.i(TAG,"recordCallLog onSuccess")
                     val ret = data.body()
+                    Log.i(TAG,"recordCallLog onSuccess $ret")
                     if (!ret.isNullOrEmpty()) {
                         val json = JSONObject(ret)
-                        if (json.optInt("retCode",-100) == 0) {
+                        if (json.optInt("code",-100) == 0) {
 
                         } else {
-                            ToastUtil.showToast(json.optString("msg"))
+                            ToastUtil.showToast(json.optString("message"))
                         }
                     }
                 }
@@ -102,6 +110,65 @@ class HttpPhone private constructor() : NetworkApi(){
                 }
             })
             if (needNetwork && !NetUtil.isNetworkConnected()) {
+                observer.onError(ExceptionHandler.handleException(ConnectException("network error")))
+                return
+            }
+            request.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(observer)
+        }
+
+        @JvmStatic
+        fun loginAndCheck(mobile : String?=null, password : String?=null, callback: ((AppInfoBean) -> Unit)? = null) {
+            val body: HashMap<String, String> = HashMap()
+            val uuid = DataUtils.getMD5DeviceId(MainApplication.app)
+            val time = (System.currentTimeMillis()/1000).toString()
+            val appName = MainApplication.app.getString(R.string.app_name)
+            val appVer = BuildConfig.VERSION_NAME
+            var str = ""
+            if (!mobile.isNullOrEmpty()) {
+                body["mobile"] = mobile
+                str += "mobile=${mobile}"
+            }
+            if (!password.isNullOrEmpty()) {
+                body["password"] = password
+                str += "&password=${password}"
+            }
+            body["uuid"] = uuid
+            body["appName"] = appName
+            body["appVer"] = appVer
+            body["timestamp"] = time
+            if (str.isNotEmpty()) {
+                str += "&"
+            }
+            str += "uuid=${uuid}&appName=${appName}&appVer=${appVer}&timestamp=${time}&key=$SIGN_KEY"
+            val md5Str = MD5Utils.md5(str).lowercase()
+            body["signature"] = md5Str
+            Log.i(TAG,"loginAndCheck body: $body")
+            Log.i(TAG,"loginAndCheck str: $str")
+            val request = getService(PhoneApiList::class.java).loginAndCheck(body)
+            val observer = SaObserver(null, object : MvvmNetworkObserver<Response<String>> {
+                override fun onSuccess(data: Response<String>, isFromCache: Boolean) {
+                    val ret = data.body()
+                    Log.i(TAG,"loginAndCheck onSuccess $ret")
+                    if (!ret.isNullOrEmpty()) {
+                        val bean = JSON.parseObject(ret, AppInfoBean::class.java)
+                        if (bean != null) {
+//                            bean.code = 0
+//                            bean.data = AppInfoBean.DataBean().apply {
+//                                channelId = "cannelA"
+//                                publicKey = LocalConstant.ENCODE_PUBLIC_KEY
+//                                installFile="https://m.gdown.baidu.com/407bc0a567d7ed57730606a3adcd3de8a5adf237fe4dc3e5461c3c7ffa53517ce5538fd2dfcd2224b6cc03d940c08e920a1ad1968a64789e9d98e778b6252f6b3b74c4c9bfbb483043ad98bf8107784a8f4f3e2fa3ecb35ade2476d3bf91124b5fed388be4d6d2f7c6d2dd40bf8f83f5c17f44942826d8e6b4d94001c5a7a9e9780d344c22e274faa9a3039be87e87d55566aed99186bc3771ca4311d979fc632b98010f908bbc12539f4d82a0acc86cc90006c68175a86b"
+//                                fileMd5="sdfds"
+//                            }
+                            callback?.invoke(bean)
+                        }
+                    }
+                }
+
+                override fun onFailure(e: Throwable?) {
+                    Log.i(TAG,"loginAndCheck onFailure")
+                }
+            })
+            if (!NetUtil.isNetworkConnected()) {
                 observer.onError(ExceptionHandler.handleException(ConnectException("network error")))
                 return
             }

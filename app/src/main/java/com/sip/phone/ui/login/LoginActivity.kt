@@ -9,16 +9,15 @@ import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import com.easycalltech.ecsdk.business.location.LocationResult
-import com.easycalltech.ecsdk.event.AccountRegisterEvent
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.ui.base.BaseActivity
+import com.sip.phone.update.UpdateDialog
 import com.sip.phone.util.OverlayUtil
 import com.sip.phone.util.ToastUtil
-import com.yushi.eventannotations.EventBusSub
 import com.yushi.eventbustag.EventBusTag
 import kotlinx.android.synthetic.main.activity_login.*
 
@@ -71,20 +70,17 @@ class LoginActivity : BaseActivity() {
         })
         codeVerifyBt?.setOnClickListener {
             if (!isPhoneEmpty()) {
-                //init and send code
-                SdkUtil.initAndBindLoginFlow(phoneNumEt?.text.toString().trim()) {
-//                    ToastUtil.showToast("短信验证码已发送")
-                    when(it) {
-                        "0" -> {
-//                            MainActivity.startActivity()
-//                            finish()
+                HttpPhone.loginAndCheck(phoneNumEt?.text.toString().trim(), SdkUtil.generateRandomNumber().toString()) {
+                    when(it.code) {
+                        0,10 -> {
+                            if (10 == it.code) {
+                                UpdateDialog.show(this, it.data)
+                            } else {
+                                SdkUtil.updateAppInfo(it.data)
+                                timer.start()
+                            }
                         }
-                        "6" -> {
-                            timer.start()
-                        }
-                        else -> {
-
-                        }
+                        else -> ToastUtil.showToast(it.message)
                     }
                 }
             }
@@ -93,11 +89,10 @@ class LoginActivity : BaseActivity() {
             if (!isPhoneEmpty() && !isCodeEmpty()) {
                 val phone = phoneNumEt?.text.toString().trim()
                 val vcode = codeVerifyEt?.text.toString().trim()
-                SdkUtil.initAndBindLoginFlow(phone,vcode,true) {
-                    if (it?.equals("0") == true) {
-//                        MainActivity.startActivity()
-//                        finish()
-                    }
+                if (!vcode.equals(SdkUtil.loginSmsCode.toString())) {
+                    ToastUtil.showToast("验证码错误")
+                } else {
+                    SdkUtil.initAndBindLoginFlow(phone,"123456",true)
                 }
             }
         }
@@ -126,6 +121,7 @@ class LoginActivity : BaseActivity() {
         override fun onFinish() {
             codeVerifyBt?.isEnabled = true
             codeVerifyBt?.text = "重发验证码"
+            SdkUtil.loginSmsCode = -1
         }
 
         override fun onTick(seconds: Long) {

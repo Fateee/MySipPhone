@@ -24,7 +24,7 @@ public class TimeUtil {
     /**
      * 默认格式
      */
-    private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final DateFormat DEFAULT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
      * 日期时间 格式yyyy-MM-dd HH:mm:ss
