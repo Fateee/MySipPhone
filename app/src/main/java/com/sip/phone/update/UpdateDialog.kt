@@ -52,7 +52,7 @@ class UpdateDialog : Dialog {
 //        fun onConfirm(payType: String?)
 //    }
 
-    fun showDialog(data: AppInfoBean.DataBean?) {
+    fun showDialog(data: AppInfoBean.DataBean?, dismissCallback: (() -> Unit)? = null) {
         if (data?.installFile.isNullOrEmpty() || data?.fileMd5.isNullOrEmpty()) return
         val isForce = true
         val fileDirPath = MainApplication.app.externalCacheDir?.absolutePath + File.separator + "CacheFiles"
@@ -81,6 +81,7 @@ class UpdateDialog : Dialog {
                         } else {
                             ToastUtil.showToast("文件校验失败")
                             dismiss()
+                            dismissCallback?.invoke()
                         }
                     }
                 }
@@ -119,9 +120,9 @@ class UpdateDialog : Dialog {
     }
     companion object {
         private const val TAG = "UpdateDialog_hy"
-        fun show(context: Context, data: AppInfoBean.DataBean?): UpdateDialog {
+        fun show(context: Context, data: AppInfoBean.DataBean?, dismissCallback: (() -> Unit)? = null): UpdateDialog {
             val dialog = UpdateDialog(context)
-            dialog.showDialog(data)
+            dialog.showDialog(data,dismissCallback)
             return dialog
         }
     }

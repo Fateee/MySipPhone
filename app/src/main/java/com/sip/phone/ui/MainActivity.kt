@@ -179,20 +179,26 @@ class MainActivity : BaseActivity() {
             when(it.code) {
                 0,10 -> {
                     if (10 == it.code) {
-                        UpdateDialog.show(this, it.data)
+                        UpdateDialog.show(this, it.data) {
+                            quitLogin()
+                        }
                     } else if (SdkUtil.channelId?.equals(it.data?.channelId) == false || SdkUtil.publicKey?.equals(it.data?.publicKey) == false) {
                         //如果使用中获取的配置数据与本地数据不同，则强制退出
                         ToastUtil.showToast("配置数据改变，退出登录")
-                        SdkUtil.channelId = null
-                        SdkUtil.publicKey = null
-                        MMKVUtil.encode(Constants.PHONE,"")
-                        EcphoneSdk.unRegister()
-                        LoginActivity.startActivity()
-                        finish()
+                        quitLogin()
                     }
                 }
             }
         }
+    }
+
+    private fun quitLogin() {
+        SdkUtil.channelId = null
+        SdkUtil.publicKey = null
+        MMKVUtil.encode(Constants.PHONE,"")
+        EcphoneSdk.unRegister()
+        LoginActivity.startActivity()
+        finish()
     }
 
 //    override fun onCreate(savedInstanceState: Bundle?) {

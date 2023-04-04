@@ -119,6 +119,8 @@ class CallingFloatView {
             tvPhoneMute?.setOnClickListener {
                 //静音
                 val status = SdkUtil.switchMute()
+                val tip = if (status) "已静音" else "取消静音"
+                ToastUtil.showToast(tip,true)
                 tvPhoneMute?.isSelected = status
                 changeBtBgColor(tvPhoneMute, status)
             }
@@ -127,6 +129,8 @@ class CallingFloatView {
             tvPhoneSpeaker?.setOnClickListener {
                 //免提
                 val status = SdkUtil.switchSpeaker()
+                val tip = if (status) "免提开启" else "免提关闭"
+                ToastUtil.showToast(tip,true)
                 tvPhoneSpeaker?.isSelected = status
                 changeBtBgColor(tvPhoneSpeaker, status)
             }
