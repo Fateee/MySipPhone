@@ -58,12 +58,12 @@ class MainActivity : BaseActivity() {
             finish()
         } else {
             //直接执行登录流程
-            val registered = SdkUtil.isRegistered()
-            val noNet = EcSipNetworkUtil.getNetWorkState(MainApplication.app).equals(EcSipNetworkUtil.NETWORK_NONE)
-            Log.e(TAG,"how about network? noNet: $noNet")
-            if (!registered && !noNet) {//没注册成功且有网络时
-                SdkUtil.initAndBindLoginFlow(phoneCached!!)
-            }
+//            val registered = SdkUtil.isRegistered()
+//            val noNet = EcSipNetworkUtil.getNetWorkState(MainApplication.app).equals(EcSipNetworkUtil.NETWORK_NONE)
+//            Log.e(TAG,"how about network? noNet: $noNet")
+//            if (!registered && !noNet) {//没注册成功且有网络时
+//                SdkUtil.initAndBindLoginFlow(phoneCached!!)
+//            }
         }
         return hasNumber
     }
@@ -175,7 +175,7 @@ class MainActivity : BaseActivity() {
 
     private fun checkAppVersion() {
         val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
-        HttpPhone.loginAndCheck(phoneCached) {
+        HttpPhone.loginAndCheck(phoneCached,"") {
             when(it.code) {
                 0,10 -> {
                     if (10 == it.code) {

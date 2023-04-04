@@ -128,7 +128,7 @@ class HttpPhone private constructor() : NetworkApi(){
                 body["mobile"] = mobile
                 str += "mobile=${mobile}"
             }
-            if (!password.isNullOrEmpty()) {
+            if (password != null) {
                 body["password"] = password
                 str += "&password=${password}"
             }
