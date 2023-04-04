@@ -101,7 +101,7 @@ dependencies {
 
 
     api 'com.tencent:mmkv-static:1.2.11'
-    implementation files('libs/ECSDK_v1.0.8.aar')
+    implementation files('libs/ECSDK_v1.1.1.aar')
     implementation files('libs/ecphone-lib-release.aar')
     //引入一下依赖先使用，下个版本中去除Dagger
     def roomVersion = "2.2.6"
