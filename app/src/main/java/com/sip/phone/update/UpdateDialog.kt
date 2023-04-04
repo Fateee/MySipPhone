@@ -78,6 +78,9 @@ class UpdateDialog : Dialog {
                         Log.i(TAG, "onDownloadSuccess and md5 $downloadFileMd5 ")
                         if (data?.fileMd5.equals(downloadFileMd5,true)) {
                             AppUtil.installApp(File("$fileDirPath/app_newest.apk"))
+                        } else {
+                            ToastUtil.showToast("文件校验失败")
+                            dismiss()
                         }
                     }
                 }

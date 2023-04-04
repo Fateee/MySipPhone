@@ -39,9 +39,9 @@ object SdkUtil {
 
     var isCallOuting = false; //是否正在呼出
     //是否静音
-    private var isMicOff = false
+    var isMicOff = false
     //是否扩音器
-    private var isVolumeOpen = false
+    var isVolumeOpen = false
     //是否是主动拒听
     var isDecline = false
     var mCallingPhone : String? = null

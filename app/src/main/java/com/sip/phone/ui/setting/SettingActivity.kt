@@ -5,8 +5,11 @@ import com.ec.utils.MMKVUtil
 import com.sip.phone.R
 import com.sip.phone.BuildConfig
 import com.sip.phone.constant.Constants
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.base.BaseActivity
+import com.sip.phone.update.UpdateDialog
+import com.sip.phone.util.ToastUtil
 import kotlinx.android.synthetic.main.activity_setting_list.*
 
 class SettingActivity : BaseActivity() {
@@ -18,14 +21,39 @@ class SettingActivity : BaseActivity() {
             MMKVUtil.encode(Constants.NUMBER_SOUND_OFF,SdkUtil.mNumSoundOff)
         }
         logout?.setOnClickListener {
-            MMKVUtil.encode(Constants.PHONE,"")
-            EcphoneSdk.unRegister()
-            setResult(RESULT_OK)
-            finish()
+            quitLogin()
         }
-        setlist_about_us?.setSubTitle("当前版本：V${BuildConfig.VERSION_NAME}")
-        setlist_about_us?.setOnClickListener {
+        appVersion?.text = "Version ${BuildConfig.VERSION_NAME}"
+        checkVer?.setOnClickListener {
+            checkAppVersion()
+        }
+    }
 
+    private fun quitLogin() {
+        MMKVUtil.encode(Constants.PHONE,"")
+        EcphoneSdk.unRegister()
+        setResult(RESULT_OK)
+        finish()
+    }
+
+    private fun checkAppVersion() {
+        val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
+        HttpPhone.loginAndCheck(phoneCached,"") {
+            when(it.code) {
+                0,10 -> {
+                    if (10 == it.code) {
+                        UpdateDialog.show(this, it.data)
+                    } else if (SdkUtil.channelId?.equals(it.data?.channelId) == false || SdkUtil.publicKey?.equals(it.data?.publicKey) == false) {
+                        //如果使用中获取的配置数据与本地数据不同，则强制退出
+                        ToastUtil.showToast("配置数据改变，退出登录")
+                        SdkUtil.channelId = null
+                        SdkUtil.publicKey = null
+                        quitLogin()
+                    } else {
+                        ToastUtil.showToast(it.message)
+                    }
+                }
+            }
         }
     }
 }

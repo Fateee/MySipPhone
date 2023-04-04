@@ -197,6 +197,7 @@ class CallingFloatView {
 
                     //静音按钮恢复默认状态
                     if (tvPhoneMute?.isSelected == true) {
+                        SdkUtil.isMicOff = false
                         SipAudioManager.getInstance().muteMicrophone(false)
                         tvPhoneMute?.isSelected = false
                         changeBtBgColor(tvPhoneMute, false)
@@ -204,6 +205,7 @@ class CallingFloatView {
 
                     //免提按钮恢复默认状态
                     if (tvPhoneSpeaker?.isSelected == true) {
+                        SdkUtil.isVolumeOpen = false
                         SipAudioManager.getInstance().setSpeakerMode(false)
                         tvPhoneSpeaker?.isSelected = false
                         changeBtBgColor(tvPhoneSpeaker, false)
