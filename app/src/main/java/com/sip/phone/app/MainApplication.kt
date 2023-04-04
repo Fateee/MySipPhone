@@ -36,12 +36,15 @@ import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.onAdaptListener
 import me.weishu.reflection.Reflection
 import org.pjsip.pjsua2.pjsip_inv_state.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class MainApplication : Application() {
     private val TAG = "MainApplication_hy"
 
     var top_activity: Activity? = null
     private var event: CallComingEvent? = null;
+    private var autoRetryCount = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +61,7 @@ class MainApplication : Application() {
         initAutoSize()
         initRegister()
         initSipAudio()
+        executeRetryJob()
     }
 
     private fun initSipAudio() {
@@ -346,6 +350,26 @@ class MainApplication : Application() {
             302 -> ToastUtil.showToast("被临时迁移状态",true)
             305 -> ToastUtil.showToast("必须使用代理状态",true)
             380 -> ToastUtil.showToast("call不成功，但是可选择其他的服务",true)
+        }
+    }
+
+    private fun executeRetryJob() {
+        val executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(registerRunnable, 1, 4, TimeUnit.MINUTES);
+    }
+
+    private val registerRunnable = object : Runnable{
+        override fun run() {
+            ThreadUtil.runOnMainThread {
+                Log.i(TAG,"autoRetryRegisterTimes is main thread "+ThreadUtil.isMainThread())
+                if (autoRetryCount < 5) {
+                    autoRetryCount++
+                    reRegisterPhone()
+                    ThreadUtil.runOnMainThread(this,5000)
+                } else {
+                    autoRetryCount = 0
+                }
+            }
         }
     }
 
