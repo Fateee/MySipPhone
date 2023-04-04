@@ -1,11 +1,14 @@
 package com.sip.phone.util
 
 import android.annotation.SuppressLint
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import com.sip.phone.BuildConfig
+import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import kotlinx.android.synthetic.main.higher_toast.view.*
 
 
 object ToastUtil {
@@ -22,7 +25,10 @@ object ToastUtil {
                     }
                     XToastUtil.getInstance().showToast(MainApplication.app,layout,toast.gravity,toast.yOffset)
                 } else {
-                    Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT).show()
+                    val view = LayoutInflater.from(MainApplication.app).inflate(R.layout.higher_toast, null)
+                    view?.message?.text = it
+                    val offsetY = if (toast.yOffset > 0) toast.yOffset else 200
+                    XToastUtil.getInstance().showToast(MainApplication.app, view,toast.gravity,offsetY)
                 }
             } else {
                 Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT).show()

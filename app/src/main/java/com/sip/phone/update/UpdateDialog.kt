@@ -79,9 +79,9 @@ class UpdateDialog : Dialog {
                         if (data?.fileMd5.equals(downloadFileMd5,true)) {
                             AppUtil.installApp(File("$fileDirPath/app_newest.apk"))
                         } else {
-                            ToastUtil.showToast("文件校验失败")
                             dismiss()
                             dismissCallback?.invoke()
+                            ToastUtil.showToast("文件校验失败")
                         }
                     }
                 }
