@@ -53,7 +53,7 @@ class UpdateDialog : Dialog {
 //    }
 
     fun showDialog(data: AppInfoBean.DataBean?) {
-        if (data?.installFile.isNullOrEmpty()) return
+        if (data?.installFile.isNullOrEmpty() || data?.fileMd5.isNullOrEmpty()) return
         val isForce = true
         val fileDirPath = MainApplication.app.externalCacheDir?.absolutePath + File.separator + "CacheFiles"
         setCancelable(!isForce)
@@ -76,7 +76,9 @@ class UpdateDialog : Dialog {
                     ThreadUtil.runOnMainThread {
                         val downloadFileMd5 = BinaryUtil.calculateMd5Str("$fileDirPath/app_newest.apk")
                         Log.i(TAG, "onDownloadSuccess and md5 $downloadFileMd5 ")
-                        AppUtil.installApp(File("$fileDirPath/app_newest.apk"))
+                        if (data?.fileMd5.equals(downloadFileMd5,true)) {
+                            AppUtil.installApp(File("$fileDirPath/app_newest.apk"))
+                        }
                     }
                 }
 
