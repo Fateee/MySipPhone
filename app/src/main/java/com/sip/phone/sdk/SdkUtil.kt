@@ -282,8 +282,8 @@ object SdkUtil {
     private fun makeACall(phoneNumber: String) {
         SipAudioManager.getInstance().muteMicrophone(isMicOff)
         SipAudioManager.getInstance().setSpeakerMode(isVolumeOpen)
-        EcSipLib.getInstance(MainApplication.app)?.makeCall(phoneNumber)
-        isCallOuting = true;
+        val ret = EcSipLib.getInstance(MainApplication.app)?.makeCall(phoneNumber)
+        isCallOuting = ret == 0
     }
 
     //自己挂断

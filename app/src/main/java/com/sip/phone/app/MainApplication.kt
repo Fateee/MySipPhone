@@ -54,7 +54,7 @@ class MainApplication : Application() {
         if (!AppUtil.isMainProcess(this)) return
         MMKV.initialize(this)
         initTopActivity()
-        Log.d(TAG,"-_- ...main process attachBaseContext... ")
+        Log.e(TAG,"-_- ...main process attachBaseContext... ")
         if (!EventBusTag.isRegistered()) { //
             EventBusTag.register(this)
         }
