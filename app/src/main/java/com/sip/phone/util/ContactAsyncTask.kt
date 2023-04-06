@@ -28,20 +28,22 @@ class ContactAsyncTask(private val callBack : (()->Unit)? = null) : AsyncTask<In
 //                val constact: MutableList<String> = ArrayList()
             SdkUtil.sourceDateList = ArrayList()
             SdkUtil.callRecords?.forEach { (k, v) ->
-                val sortModel = SortModel()
-                sortModel.name = k
-                sortModel.number = v?.replace("-", "")?.replace(" ", "")
-                // 汉字转换成拼音
-                val pinyin = characterParser?.getSelling(k)
-                val sortString = pinyin?.substring(0, 1)?.toUpperCase()
+                v?.forEach {
+                    val sortModel = SortModel()
+                    sortModel.name = k
+                    sortModel.number = it?.replace("-", "")?.replace(" ", "")
+                    // 汉字转换成拼音
+                    val pinyin = characterParser?.getSelling(k)
+                    val sortString = pinyin?.substring(0, 1)?.toUpperCase()
 
-                // 正则表达式，判断首字母是否是英文字母
-                if (sortString?.matches(Regex("[A-Z]")) == true) {
-                    sortModel.sortLetters = sortString.toUpperCase()
-                } else {
-                    sortModel.sortLetters = "#"
+                    // 正则表达式，判断首字母是否是英文字母
+                    if (sortString?.matches(Regex("[A-Z]")) == true) {
+                        sortModel.sortLetters = sortString.toUpperCase()
+                    } else {
+                        sortModel.sortLetters = "#"
+                    }
+                    SdkUtil.sourceDateList?.add(sortModel)
                 }
-                SdkUtil.sourceDateList?.add(sortModel)
             }
 
             // 根据a-z进行排序源数据

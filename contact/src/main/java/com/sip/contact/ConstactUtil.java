@@ -1,5 +1,6 @@
 package com.sip.contact;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +14,8 @@ public class ConstactUtil {
 	 * 
 	 * @return
 	 */
-	public static Map<String,String> getAllCallRecords(Context context) {
-		Map<String,String> temp = new HashMap<String, String>();
+	public static Map<String,ArrayList<String>> getAllCallRecords(Context context) {
+		Map<String, ArrayList<String>> temp = new HashMap<>();
 		Cursor c = context.getContentResolver().query(
 				ContactsContract.Contacts.CONTENT_URI,
 				null,
@@ -33,7 +34,7 @@ public class ConstactUtil {
 				int phoneCount = c
 						.getInt(c
 								.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-				String number=null;
+				String number;
 				if (phoneCount > 0) {
 					// 获得联系人的电话号码
 					Cursor phones = context.getContentResolver().query(
@@ -41,14 +42,23 @@ public class ConstactUtil {
 							null,
 							ContactsContract.CommonDataKinds.Phone.CONTACT_ID
 									+ " = " + contactId, null, null);
-					if (phones.moveToFirst()) {
+//					if (phones.moveToFirst()) {
+//						number = phones
+//								.getString(phones
+//								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//						}
+					while (phones.moveToNext()) {
 						number = phones
 								.getString(phones
-								.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+										.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+						if (!temp.containsKey(name)) {
+							temp.put(name, new ArrayList<>());
 						}
+						temp.get(name).add(number);
+					}
 					phones.close();
 				}
-				temp.put(name, number);
+//				temp.put(name, number);
 			} while (c.moveToNext());
 		}
 		c.close();

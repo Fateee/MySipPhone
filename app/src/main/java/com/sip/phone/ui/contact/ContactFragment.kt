@@ -93,7 +93,7 @@ class ContactFragment : Fragment() {
                 // Toast.LENGTH_SHORT).show();
                 hideKeyboard()
                 val name = (adapter?.getItem(position) as SortModel).name
-                val number = SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
+                val number = (adapter?.getItem(position) as SortModel).number?.replace("-", "")?.replace(" ", "")// SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
                 val bundle = Bundle()
                 bundle.putString("name", name)
                 bundle.putString("number", number)

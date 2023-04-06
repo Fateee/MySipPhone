@@ -34,7 +34,7 @@ object SdkUtil {
     var mDuration: Long = 0
     var mBeginTime : String? = null
     var sourceDateList: ArrayList<SortModel?>? = null//联系人数据
-    var callRecords: Map<String, String>? = null
+    var callRecords: Map<String, ArrayList<String>>? = null
     private const val TAG = "SdkUtil_hy"
     var isOnceStartMainActivity = true;
     var doMain = "sc.vopbx.dict.cn"
