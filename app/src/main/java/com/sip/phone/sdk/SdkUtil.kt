@@ -22,12 +22,14 @@ import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.ui.MainActivity
 import com.sip.phone.util.PermissionUtils
+import com.sip.phone.util.ThreadUtil
 import com.sip.phone.util.ToastUtil
 
 object SdkUtil {
     var publicKey: String? = null
     var channelId: String? = null
     var loginSmsCode : Int = -1
+    var isRegisterIng = false
     var mNumSoundOff: Boolean = false
     var mDuration: Long = 0
     var mBeginTime : String? = null
@@ -78,6 +80,12 @@ object SdkUtil {
             ToastUtil.showToast("异常：渠道为空")
             return
         }
+        if (isRegisterIng) {
+            Log.e(TAG,"已调用init()方法 目前正在注册中...")
+            return
+        }
+        isRegisterIng = true
+        Log.w(TAG,"即将调用init()方法 开始注册----")
         EcphoneSdk.init(MainApplication.app, doMain, channelId!!, "$timestamp", signature, object : EcphoneSdk.ResponseCallback<String> {
                 override fun success(t: BaseResponse<String>) {
                     if (TextUtils.equals(t.retcode, "6")) {
@@ -92,6 +100,7 @@ object SdkUtil {
                 override fun fail(e: Throwable?) {
                     e?.printStackTrace()
                     ToastUtil.showToast("异常: ${e?.message}")
+                    isRegisterIng = false
                 }
             })
     }
@@ -122,14 +131,18 @@ object SdkUtil {
                     "0" -> {
                         //success
                         callback?.invoke(code)
+                        ThreadUtil.runOnMainThread({
+                            isRegisterIng = false
+                        },20*1000)
                     }
                     "6" -> {
+                        isRegisterIng = false
                         sendSmsCode(phone) {
                             callback?.invoke(code)
                         }
                     }
                     else -> {
-
+                        isRegisterIng = false
                     }
                 }
             }
@@ -213,6 +226,7 @@ object SdkUtil {
     }
 
     fun registerSuccess(event: AccountRegisterEvent, phone: String?, callback: (() -> Unit)? = null) {
+        isRegisterIng = false
         when(event.registrationStateCode) {
             200 -> {
                 Log.i(TAG,"注册成功-----")
@@ -368,6 +382,7 @@ object SdkUtil {
     fun generateRandomNumber(): Int {
         val random = java.util.Random()
         loginSmsCode = random.nextInt(900000) + 100000
+//        ToastUtil.showToast(loginSmsCode.toString())
         return loginSmsCode
     }
 

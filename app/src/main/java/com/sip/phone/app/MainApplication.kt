@@ -186,8 +186,8 @@ class MainApplication : Application() {
         WatchDog.Builder()
             .registerEventHandler(object : WatchEventCallback {
                 override fun stat(type: String, action: String) {
-//                    Log.e(TAG,"relive by: type $type, action $action")
-                    Log.i(TAG,"stat: type == "+type+" action == "+action+" pid == "+ Process.myPid()+" mAppContext == "+ app +" baseContext = "+base+" "+base.applicationContext)
+                    Log.e(TAG,"relive by: type $type, action $action")
+//                    Log.i(TAG,"stat: type == "+type+" action == "+action+" pid == "+ Process.myPid()+" mAppContext == "+ app +" baseContext = "+base+" "+base.applicationContext)
                 }
 
                 override fun startOwnAliveService(): Boolean {
