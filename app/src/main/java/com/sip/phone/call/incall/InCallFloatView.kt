@@ -21,7 +21,10 @@ import com.easycalltech.ecsdk.event.CallComingEvent
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.call.calling.CallingFloatManager
+import com.sip.phone.constant.Constants
+import com.sip.phone.database.HistoryManager
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
 
@@ -129,10 +132,10 @@ class InCallFloatView {
     fun show(callComingEvent: CallComingEvent?) {
         try {
             mCallComingEvent = callComingEvent
-            initPhoneView(callComingEvent)
             if (!hasShown) {
                 if (Settings.canDrawOverlays(MainApplication.app)) {
                     if (floatRootView?.parent == null) {
+                        initPhoneView(callComingEvent)
                         Log.i(TAG,"调用来电显示界面。。。。。。。。。。。。OKK")
                         //RingManager.setMuteRing()
 //                        tvPhonePickUp?.visibility = if (callIn) View.VISIBLE else View.GONE
@@ -170,15 +173,16 @@ class InCallFloatView {
             phoneNumber = phoneNumber?.replaceFirst("0086","")
         }
         tvCallNumber?.text = phoneNumber
-//        phoneNumber?.let {
-//            tvCallNumber?.text = it
-////            InCallActivity.getPhoneBelong(it, tvCallRemark)
-////            ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
-////                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
-////                    tvCallName?.text = contentCallLog?.displayName ?: "未知"
-////                }
-////            })
-//        }
+        phoneNumber?.let {
+            tvCallNumber?.text = it
+//            InCallActivity.getPhoneBelong(it, tvCallRemark)
+            ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
+                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
+                    tvCallName?.text = contentCallLog?.displayName ?: ""
+                    HistoryManager.createRecord(it,tvCallName?.text?.toString()?:"",Constants.INCOME_CALL)
+                }
+            })
+        }
 //        tvCallRemark?.text = city
     }
 

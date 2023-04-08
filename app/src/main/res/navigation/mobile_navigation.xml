@@ -18,9 +18,9 @@
         tools:layout="@layout/fragment_dashboard"
         android:saveEnabled="true"/>
 
-<!--    <fragment-->
-<!--        android:id="@+id/navigation_notifications"-->
-<!--        android:name="com.sip.phone.ui.notifications.NotificationsFragment"-->
-<!--        android:label="@string/title_notifications"-->
-<!--        tools:layout="@layout/fragment_notifications" />-->
+    <fragment
+        android:id="@+id/navigation_record"
+        android:name="com.sip.phone.ui.notifications.RecordFragment"
+        android:label="@string/title_record"
+        tools:layout="@layout/fragment_record" />
 </navigation>

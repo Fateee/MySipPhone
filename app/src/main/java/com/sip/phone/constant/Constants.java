@@ -67,4 +67,7 @@ public class Constants {
 
     public final static String CHANNEL_ID = "CHANNEL_ID";
     public final static String PUBLIC_KEY = "PUBLIC_KEY";
+
+    public static final int OUT_CALL = 1;
+    public static final int INCOME_CALL = 2;
 }

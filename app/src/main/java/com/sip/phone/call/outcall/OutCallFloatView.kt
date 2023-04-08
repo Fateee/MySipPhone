@@ -14,6 +14,8 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
+import com.sip.phone.constant.Constants
+import com.sip.phone.database.HistoryManager
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
@@ -98,11 +100,12 @@ class OutCallFloatView {
 
     fun show(phone: String, name : String) {
         try {
-            tvCallNumber?.text = phone
-            tvCallName?.text = name
             if (!hasShown) {
                 if (Settings.canDrawOverlays(MainApplication.app)) {
                     if (floatRootView?.parent == null) {
+                        tvCallNumber?.text = phone
+                        tvCallName?.text = name
+                        HistoryManager.createRecord(phone,name, Constants.OUT_CALL)
                         //RingManager.setMuteRing()
 //                        tvPhonePickUp?.visibility = if (callIn) View.VISIBLE else View.GONE
                         windowManager?.addView(floatRootView, layoutParam)

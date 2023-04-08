@@ -23,6 +23,7 @@ import com.sip.phone.call.calling.CallingFloatManager
 import com.sip.phone.call.incall.InCallFloatManager
 import com.sip.phone.call.outcall.OutCallFloatManager
 import com.sip.phone.constant.Constants
+import com.sip.phone.database.HistoryManager
 import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.login.LoginActivity
@@ -278,6 +279,7 @@ class MainApplication : Application() {
      */
     @EventBusSub(tag = "CallDisconnectEvent")
     fun callDisconnect(event: CallDisconnectEvent) {
+        HistoryManager.saveRecord()
         Log.d(TAG, "### 呼叫断开消息 " + event.callID)
         if (SdkUtil.isCallOuting) {//只记录呼出并且接通了的通话
             HttpPhone.recordCallLog()

@@ -2,7 +2,7 @@
     <string name="app_name">云闪通</string>
     <string name="title_dialer">电话</string>
     <string name="title_contact">联系人</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_record">通话</string>
 
     <!--dialView description -->
     <string name="dialpad_0" translatable="false">0</string>
