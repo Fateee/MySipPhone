@@ -1,6 +1,7 @@
 package com.sip.phone.database
 
 import androidx.annotation.WorkerThread
+import androidx.lifecycle.MutableLiveData
 import com.ec.utils.MMKVUtil
 import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
@@ -9,11 +10,12 @@ import com.sip.phone.util.ThreadManager
 import com.sip.phone.util.ThreadUtil
 
 object HistoryManager {
+    val newHistoryBean = MutableLiveData<HistoryBean?>()
     private const val TAG = "HistoryManager_hy"
     private val MAX_ITEMS = 10000
     private val historyDao = HistoryDb.getInstance(MainApplication.app).historyDao()
     private var historyBean : HistoryBean? = null
-
+    val mAllRecordList = ArrayList<HistoryBean>()
 //    init {
 //        historyDao = HistoryDb.getInstance(MainApplication.app).historyDao()
 //    }
@@ -51,6 +53,7 @@ object HistoryManager {
         try {
             ThreadManager.get().execute {
                 delete(bean)
+                mAllRecordList.remove(bean)
                 ThreadUtil.runOnMainThread {
                     callback?.invoke()
                 }
@@ -72,10 +75,14 @@ object HistoryManager {
         }
     }
 
-    fun getMyAllRecord(callback: ((List<HistoryBean>?)->Unit)?) {
+    fun getMyAllRecord(callback: ((List<HistoryBean>?)->Unit)? = null) {
         try {
             ThreadUtil.runOnBackground({
                 val ret = getAllHistory()
+                mAllRecordList.clear()
+                if (ret != null) {
+                    mAllRecordList.addAll(ret)
+                }
                 ThreadUtil.runOnMainThread {
                     callback?.invoke(ret)
                 }
@@ -108,6 +115,10 @@ object HistoryManager {
             }
             ThreadManager.get().execute {
                 insert(historyBean)
+                historyBean?.let {
+                    mAllRecordList.add(0,it)
+                    newHistoryBean.postValue(it)
+                }
                 clearTempRecord()
                 callback?.invoke()
             }

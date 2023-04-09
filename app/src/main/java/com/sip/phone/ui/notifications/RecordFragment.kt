@@ -4,12 +4,17 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.text.*
+import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sip.phone.R
@@ -27,16 +32,21 @@ import com.sip.phone.util.DateUtils
 import com.sip.phone.util.TimeUtil
 import kotlinx.android.synthetic.main.fragment_record.*
 import java.io.Serializable
+import java.util.*
+import kotlin.collections.ArrayList
 
 class RecordFragment : Fragment() {
-
+    private val TAG = "RecordFragment_hy"
     private var mRecordListAdapter: RecordListAdapter? = null
-    private val mAllRecordList = ArrayList<HistoryBean>()
+    private var filterDataList = ArrayList<HistoryBean>()
+    private var searchKey: String? = ""
+    private lateinit var recordViewModel: RecordViewModel
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        recordViewModel = ViewModelProvider(this).get(RecordViewModel::class.java)
         return inflater.inflate(R.layout.fragment_record, container, false)
     }
 
@@ -48,6 +58,9 @@ class RecordFragment : Fragment() {
         mRecordListAdapter?.itemClickCallback = object : OnItemClickCallback {
             override fun onItemClick(itemView: View, data: Serializable, position: Int) {
                 if (data is HistoryBean) {
+                    if (!searchKey.isNullOrEmpty()) {
+                        hideKeyboard()
+                    }
                     val bundle = Bundle()
                     bundle.putString("name", data.name)
                     bundle.putString("number", data.phone)
@@ -60,6 +73,29 @@ class RecordFragment : Fragment() {
                 itemView?.showContextMenu()
             }
         }
+        et_search?.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val value = s?.toString()
+                filterData(value)
+            }
+        })
+        if (HistoryManager.mAllRecordList.isNullOrEmpty()) {
+            refreshList()
+        } else {
+            emptyTV?.visibility = View.GONE
+//            mRecordListAdapter?.data?.clear()
+            mRecordListAdapter?.data = HistoryManager.mAllRecordList as  ArrayList<Serializable>
+            mRecordListAdapter?.notifyDataSetChanged()
+        }
+        recordViewModel.record.observe(viewLifecycleOwner, {
+            mRecordListAdapter?.notifyDataSetChanged()
+        })
     }
 
     override fun onResume() {
@@ -74,12 +110,32 @@ class RecordFragment : Fragment() {
                 emptyTV?.visibility = View.VISIBLE
             } else {
                 emptyTV?.visibility = View.GONE
-                mAllRecordList.clear()
-                mAllRecordList.addAll(it)
-                mRecordListAdapter?.data = it as ArrayList<Serializable>
+//                mRecordListAdapter?.data?.clear()
+                mRecordListAdapter?.data = HistoryManager.mAllRecordList as ArrayList<Serializable>
                 mRecordListAdapter?.notifyDataSetChanged()
             }
         }
+    }
+
+    private fun filterData(filterStr: String?) {
+        searchKey = filterStr
+        filterDataList.clear()
+        if (filterStr.isNullOrEmpty()) {
+            mRecordListAdapter?.data = HistoryManager.mAllRecordList as ArrayList<Serializable>
+            mRecordListAdapter?.notifyDataSetChanged()
+            return
+        }
+        if (!TextUtils.isEmpty(filterStr) && !HistoryManager.mAllRecordList.isNullOrEmpty()) {
+            for (item in HistoryManager.mAllRecordList) {
+                val number = item.phone
+                val name = item.name
+                if (number.indexOf(filterStr!!) != -1 || name?.indexOf(filterStr) != -1) {
+                    filterDataList.add(item)
+                }
+            }
+        }
+        mRecordListAdapter?.data = filterDataList as ArrayList<Serializable>
+        mRecordListAdapter?.notifyDataSetChanged()
     }
 
     inner class RecordListAdapter : BaseListAdapter() {
@@ -137,10 +193,12 @@ class RecordFragment : Fragment() {
                     ContactUtil.getContentCallLog(MainApplication.app, phone, object : ContactUtil.Callback {
                         override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
                             phoneName?.text = contentCallLog?.displayName ?: phone
+                            updateSearchWord(phoneName)
                         }
                     })
                 } else {
                     phoneName?.text = name
+                    updateSearchWord(phoneName)
                 }
 
                 location?.let {
@@ -182,5 +240,27 @@ class RecordFragment : Fragment() {
                 }
             }
         }
+
+        private fun updateSearchWord(phoneName: TextView?) {
+            var number : CharSequence? = phoneName?.text
+            if (!TextUtils.isEmpty(number) && !TextUtils.isEmpty(searchKey)) {
+                if (number!!.contains(searchKey!!)) {
+                    number = SpannableStringBuilder(number).apply {
+                        val start = number!!.indexOf(searchKey!!)
+                        val end = start + searchKey!!.length
+                        setSpan(ForegroundColorSpan(context.resources.getColor(R.color.phone_main_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                }
+                phoneName?.text = number
+            }
+        }
+    }
+
+    fun hideKeyboard() {
+        // 获取输入法管理器
+        val inputMethodManager = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        // 隐藏键盘
+        inputMethodManager.hideSoftInputFromWindow(et_search?.windowToken, 0)
+
     }
 }

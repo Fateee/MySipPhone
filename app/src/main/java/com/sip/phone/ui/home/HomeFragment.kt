@@ -98,8 +98,8 @@ class HomeFragment : Fragment() {
         }
         val name = arguments?.getString("name")
         val number = arguments?.getString("number")
-        if (!name.isNullOrEmpty() && !number.isNullOrEmpty()) {
-            val arr = arrayOfNulls<String>(2)
+        if (!number.isNullOrEmpty()) {
+            val arr = arrayOfNulls<String?>(2)
             arr[0] = name
             arr[1] = number
             setContactInfo(arr)

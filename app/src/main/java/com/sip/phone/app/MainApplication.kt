@@ -60,7 +60,9 @@ class MainApplication : Application() {
             EventBusTag.register(this)
         }
         initAutoSize()
-        initRegister()
+        if (initRegister()) {
+            HistoryManager.getMyAllRecord()
+        }
         initSipAudio()
         executeRetryJob()
     }
@@ -109,7 +111,7 @@ class MainApplication : Application() {
         })
     }
 
-    private fun initRegister() {
+    private fun initRegister(): Boolean {
 //        MMKVUtil.encode(Constants.PHONE,"")
         val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
         val hasNumber = !phoneCached.isNullOrEmpty()
@@ -120,6 +122,7 @@ class MainApplication : Application() {
             //直接执行登录流程
             SdkUtil.initAndBindLoginFlow(phoneCached!!)
         }
+        return hasNumber
     }
 
     /**
