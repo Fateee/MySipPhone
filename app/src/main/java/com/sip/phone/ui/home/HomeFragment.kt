@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +19,10 @@ import com.sip.contact.SimpleCornerTextView
 import com.sip.contact.databinding.ItemFilterBinding
 import com.sip.contact.sortlist.SortModel
 import com.sip.phone.R
+import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
+import com.sip.phone.database.HistoryBean
+import com.sip.phone.database.HistoryManager
 import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.ui.listview.customview.BaseCustomView
@@ -26,9 +30,11 @@ import com.sip.phone.ui.listview.recyclerview.BaseListAdapter
 import com.sip.phone.ui.listview.recyclerview.OnItemClickCallback
 import com.sip.phone.ui.setting.SettingActivity
 import com.sip.phone.ui.view.DialView
+import com.sip.phone.util.ContactUtil
+import com.sip.phone.util.DateUtils
+import com.sip.phone.util.TimeUtil
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.Serializable
-import java.util.*
 import kotlin.collections.ArrayList
 
 
@@ -39,7 +45,7 @@ class HomeFragment : Fragment() {
 //    private lateinit var homeViewModel: HomeViewModel
     private var mFilterListAdapter: FilterListAdapter? = null
     private var pinyinComparator = PinyinComparator()
-    private var filterDateList = ArrayList<SortModel?>()
+    private var filterDateList = ArrayList<Serializable?>()
     private var searchKey: String? = ""
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -94,6 +100,9 @@ class HomeFragment : Fragment() {
                     dialView?.setDialViewInput(data.number)
 //                    filterData(data.number)
                 }
+                if (data is HistoryBean) {
+                    dialView?.setDialViewInput(data.phone)
+                }
             }
         }
         val name = arguments?.getString("name")
@@ -146,8 +155,16 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        // 根据a-z进行排序
-        Collections.sort(filterDateList, pinyinComparator)
+        if (!TextUtils.isEmpty(filterStr) && !HistoryManager.mAllRecordList.isNullOrEmpty()) {
+            for (item in HistoryManager.mAllRecordList) {
+                val number = item.phone
+                if (number.indexOf(filterStr!!) != -1) {
+                    filterDateList.add(item)
+                }
+            }
+        }
+//        // 根据a-z进行排序
+//        Collections.sort(filterDateList, pinyinComparator)
         mFilterListAdapter?.data = filterDateList as ArrayList<Serializable>
         mFilterListAdapter?.notifyDataSetChanged()
     }
@@ -156,24 +173,111 @@ class HomeFragment : Fragment() {
         override fun createItemView(context: Context) = FilterItemView(context)
     }
 
-    inner class FilterItemView(context: Context) : BaseCustomView<ItemFilterBinding, SortModel>(context) {
+    inner class FilterItemView(context: Context) : BaseCustomView<ItemFilterBinding, Serializable>(context) {
         override fun onRootClick(v: View?) {
         }
 
-        override fun getViewLayoutId() = R.layout.phone_constacts_item
+        override fun getViewLayoutId() = R.layout.item_record_view
 
-        override fun setDataToView(data : SortModel?) {
-            val name = data?.name
-            val tvTitle = rootView?.findViewById<TextView>(R.id.title)
-            val tvPhone = rootView?.findViewById<TextView>(R.id.phone)
-            val icon = rootView?.findViewById<SimpleCornerTextView>(R.id.icon)
-            rootView?.findViewById<View>(R.id.catalog)?.visibility = View.GONE
-            if (!TextUtils.isEmpty(name)) {
-                tvTitle?.text = name
-                val lastWord = name?.substring(name.length - 1)
-                icon?.text = lastWord
+        override fun setDataToView(data : Serializable?) {
+            when(data) {
+                is SortModel -> {
+                    val name = data?.name
+                    rootView?.findViewById<View>(R.id.contactGroup)?.visibility = View.VISIBLE
+                    rootView?.findViewById<View>(R.id.recordGroup)?.visibility = View.GONE
+                    val tvTitle = rootView?.findViewById<TextView>(R.id.title)
+                    val tvPhone = rootView?.findViewById<TextView>(R.id.phone)
+                    val icon = rootView?.findViewById<SimpleCornerTextView>(R.id.icon)
+                    rootView?.findViewById<View>(R.id.catalog)?.visibility = View.GONE
+                    if (!TextUtils.isEmpty(name)) {
+                        tvTitle?.text = name
+                        val lastWord = name?.substring(name.length - 1)
+                        icon?.text = lastWord
+                    }
+                    var number : CharSequence? = data?.number
+                    if (!TextUtils.isEmpty(number) && !TextUtils.isEmpty(searchKey)) {
+                        if (number!!.contains(searchKey!!)) {
+                            number = SpannableStringBuilder(number).apply {
+                                val start = number!!.indexOf(searchKey!!)
+                                val end = start + searchKey!!.length
+                                setSpan(ForegroundColorSpan(context.resources.getColor(R.color.phone_main_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            }
+                        }
+                        tvPhone?.text = number
+                        tvPhone?.visibility = View.VISIBLE
+                    } else {
+                        tvPhone?.visibility = View.GONE
+                    }
+                }
+                is HistoryBean -> {
+                    rootView?.findViewById<View>(R.id.contactGroup)?.visibility = View.GONE
+                    rootView?.findViewById<View>(R.id.recordGroup)?.visibility = View.VISIBLE
+                    val phoneName = rootView?.findViewById<TextView>(R.id.phoneName)
+                    val recordTip = rootView?.findViewById<TextView>(R.id.recordTip)
+                    val statusIcon = rootView?.findViewById<ImageView>(R.id.statusIcon)
+                    val timeTv = rootView?.findViewById<TextView>(R.id.timeTv)
+                    val tipBuilder = StringBuilder()
+                    data.apply {
+                        when(type) {
+                            Constants.INCOME_CALL -> {
+                                if (duration > 0) {
+                                    val ret = DateUtils.timeParseChar(duration * 1000)
+                                    tipBuilder.append("呼入$ret")
+                                } else {
+                                    tipBuilder.append("未接通")
+                                }
+                                phoneName?.setTextColor(context.getColor(R.color.c0C0C0C))
+                                statusIcon?.setImageResource(R.drawable.ic_record_incall)
+                            }
+                            Constants.INCOME_CALL_CANCEL -> {
+                                val time = if (incall_show_time > 0) incall_show_time else 1
+                                tipBuilder.append("响铃${time}秒")
+                                phoneName?.setTextColor(context.getColor(R.color.cF53530))
+                                statusIcon?.setImageResource(R.drawable.ic_record_duifang_quit)
+                            }
+                            Constants.INCOME_CALL_REJECT -> {
+                                tipBuilder.append("拒接")
+                                phoneName?.setTextColor(context.getColor(R.color.cF53530))
+                                statusIcon?.setImageResource(R.drawable.ic_record_reject_call)
+                            }
+                            else -> {
+                                if (duration > 0) {
+                                    val ret = DateUtils.timeParseChar(duration * 1000)
+                                    tipBuilder.append("呼出$ret")
+                                } else {
+                                    tipBuilder.append("未接通")
+                                }
+                                phoneName?.setTextColor(context.getColor(R.color.black))
+                                statusIcon?.setImageResource(R.drawable.ic_record_outcall)
+                            }
+                        }
+
+                        if (name.isNullOrEmpty()) {
+                            ContactUtil.getContentCallLog(MainApplication.app, phone, object : ContactUtil.Callback {
+                                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
+                                    phoneName?.text = contentCallLog?.displayName ?: phone
+                                    updateSearchWord(phoneName)
+                                }
+                            })
+                        } else {
+                            phoneName?.text = name
+                            updateSearchWord(phoneName)
+                        }
+
+                        location?.let {
+                            tipBuilder.append(" $it")
+                        }
+                        recordTip?.text = tipBuilder.toString()
+
+                        val dateTime = TimeUtil.getFriendlyTimeByNow(date)
+                        timeTv?.text = dateTime
+                    }
+                }
             }
-            var number : CharSequence? = data?.number
+        }
+
+        private fun updateSearchWord(phoneName: TextView?) {
+            var number : CharSequence? = phoneName?.text
             if (!TextUtils.isEmpty(number) && !TextUtils.isEmpty(searchKey)) {
                 if (number!!.contains(searchKey!!)) {
                     number = SpannableStringBuilder(number).apply {
@@ -182,10 +286,7 @@ class HomeFragment : Fragment() {
                         setSpan(ForegroundColorSpan(context.resources.getColor(R.color.phone_main_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                     }
                 }
-                tvPhone?.text = number
-                tvPhone?.visibility = View.VISIBLE
-            } else {
-                tvPhone?.visibility = View.GONE
+                phoneName?.text = number
             }
         }
     }

@@ -151,6 +151,7 @@ class RecordFragment : Fragment() {
         override fun setDataToView(data: HistoryBean?) {
             val tipBuilder = StringBuilder()
             data?.apply {
+                rootView?.findViewById<View>(R.id.recordGroup)?.visibility = View.VISIBLE
                 val phoneName = rootView?.findViewById<TextView>(R.id.phoneName)
                 val recordTip = rootView?.findViewById<TextView>(R.id.recordTip)
                 val statusIcon = rootView?.findViewById<ImageView>(R.id.statusIcon)
