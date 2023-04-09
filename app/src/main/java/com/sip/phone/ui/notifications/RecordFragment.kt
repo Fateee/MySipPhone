@@ -1,5 +1,7 @@
 package com.sip.phone.ui.notifications
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -55,7 +57,7 @@ class RecordFragment : Fragment() {
         }
         mRecordListAdapter?.itemLongClickCallback = object : OnItemLongClickCallback {
             override fun onItemLongClick(itemView: View?, data: Serializable, position: Int) {
-
+                itemView?.showContextMenu()
             }
         }
     }
@@ -148,6 +150,36 @@ class RecordFragment : Fragment() {
 
                 val dateTime = TimeUtil.getFriendlyTimeByNow(date)
                 timeTv?.text = dateTime
+
+                rootView?.setOnCreateContextMenuListener { menu, view, menuInfo ->
+                    menu.add(0, android.R.id.copy, 0, "复制").setOnMenuItemClickListener {
+                        try {
+                            val clip = ClipData.newPlainText("text", phone)
+                            val clipboard = context?.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            clipboard.setPrimaryClip(clip)
+                        } catch (e : Exception) {
+                            e.printStackTrace()
+                        }
+                        true
+                    }
+                    menu.add(0, R.id.delete, 0, "删除").setOnMenuItemClickListener {
+                        try {
+                            HistoryManager.deleteRecord(data) {
+                                mRecordListAdapter?.data?.remove(data)
+                                mRecordListAdapter?.notifyDataSetChanged()
+                                if (mRecordListAdapter?.data.isNullOrEmpty()) {
+                                    //暂无通话记录
+                                    emptyTV?.visibility = View.VISIBLE
+                                } else {
+                                    emptyTV?.visibility = View.GONE
+                                }
+                            }
+                        } catch (e : Exception) {
+                            e.printStackTrace()
+                        }
+                        true
+                    }
+                }
             }
         }
     }

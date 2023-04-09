@@ -51,7 +51,9 @@ object HistoryManager {
         try {
             ThreadManager.get().execute {
                 delete(bean)
-                callback?.invoke()
+                ThreadUtil.runOnMainThread {
+                    callback?.invoke()
+                }
             }
         } catch (e : Exception) {
             e.printStackTrace()

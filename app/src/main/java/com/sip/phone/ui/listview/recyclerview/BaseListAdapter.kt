@@ -31,7 +31,7 @@ abstract class BaseListAdapter : RecyclerView.Adapter<BaseViewHolder>() {
             }
             holder.itemView.setOnLongClickListener { v ->
                 itemLongClickCallback?.onItemLongClick(v, data[position], position)
-                false
+                true
             }
         }
     }
