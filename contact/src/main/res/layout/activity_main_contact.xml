@@ -12,13 +12,17 @@
         <com.sip.contact.ClearEditText
             android:id="@+id/filter_edit"
             android:layout_width="fill_parent"
-            android:layout_height="45dp"
-            android:gravity="center"
-            android:background="@drawable/acm_inputbox"
-            android:drawableLeft="@drawable/search"
+            android:layout_height="40dp"
+            android:background="@drawable/search_et_bg"
+            android:drawableLeft="@drawable/ic___search"
             android:hint="@string/search"
             android:singleLine="true"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textColorHint="#6f6f6f"
+            android:paddingHorizontal="15dp"
+            android:layout_marginHorizontal="15dp"
+            android:drawablePadding="10dp"
+            android:layout_marginVertical="3dp"/>
 
         <FrameLayout
             android:layout_width="fill_parent"

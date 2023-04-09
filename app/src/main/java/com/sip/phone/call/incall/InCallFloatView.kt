@@ -26,7 +26,11 @@ import com.sip.phone.database.HistoryManager
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.ToastUtil
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import me.jessyan.autosize.AutoSizeCompat
+import java.util.concurrent.TimeUnit
 
 class InCallFloatView {
     private var mContext : Context? = null
@@ -53,6 +57,8 @@ class InCallFloatView {
     private var outerScaleAnimation : ScaleAnimation? = null
     private var outerAlphaAnimation : AlphaAnimation? = null
     private var phoneNumber : String? = null
+    //通话计时器
+    private var timeDispose: Disposable? = null    //通话计时器
     init {
         initView()
     }
@@ -123,6 +129,7 @@ class InCallFloatView {
             }
             //挂断电话
             tvPhoneHangUp?.setOnClickListener {
+                HistoryManager.updateRecordType(Constants.INCOME_CALL_REJECT)
                 SdkUtil.reject(mCallComingEvent?.callID,true)
                 dismiss()
             }
@@ -142,6 +149,7 @@ class InCallFloatView {
                         startWaveAnimation()
                         windowManager?.addView(floatRootView, layoutParam)
                         hasShown = true
+                        countTime()
                     }
                 } else {
                     ToastUtil.showToast("未开启悬浮窗权限")
@@ -156,6 +164,7 @@ class InCallFloatView {
         try {
             if (hasShown) {
                 if (floatRootView?.parent != null) {
+                    timeDispose?.dispose()
                     //RingManager.resetRingVolume()
                         clearWaveAnimation()
                     windowManager?.removeView(floatRootView)
@@ -234,6 +243,14 @@ class InCallFloatView {
 
         outerAnimationSet.cancel()
         outerAnimationSet.reset()
+    }
+
+    private fun countTime() {
+        timeDispose = Observable.interval(0, 1000, TimeUnit.MILLISECONDS)
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ it -> // 逻辑代码
+                SdkUtil.mInCallShowTime = it
+            }) { throwable -> throwable.printStackTrace() }
     }
 
     private fun adjustAutoSize(context: Context): Context {

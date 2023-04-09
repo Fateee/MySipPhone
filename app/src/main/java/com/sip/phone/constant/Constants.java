@@ -70,4 +70,6 @@ public class Constants {
 
     public static final int OUT_CALL = 1;
     public static final int INCOME_CALL = 2;
+    public static final int INCOME_CALL_CANCEL = 3;
+    public static final int INCOME_CALL_REJECT = 4;
 }

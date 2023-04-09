@@ -26,6 +26,7 @@ import com.sip.phone.util.ThreadUtil
 import com.sip.phone.util.ToastUtil
 
 object SdkUtil {
+    var mInCallShowTime: Long = 0
     var publicKey: String? = null
     var channelId: String? = null
     var loginSmsCode : Int = -1
@@ -377,6 +378,7 @@ object SdkUtil {
         isDecline = false
         callId = -1
         loginSmsCode = -1
+        mInCallShowTime = 0
     }
 
     fun generateRandomNumber(): Int {

@@ -17,7 +17,7 @@ interface HistoryDao {
     @Query("SELECT * FROM history WHERE user_id = :userId AND type = :type ORDER BY date DESC LIMIT 20 OFFSET :pageIndex*20")
     fun getHistoryByPage(pageIndex : Int, userId : String?, type : Int) : List<HistoryBean>?
 
-    @Query("SELECT * FROM history WHERE user_id = :userId ORDER BY date")
+    @Query("SELECT * FROM history WHERE user_id = :userId ORDER BY date DESC")
     fun getAllHistory(userId : String?) : List<HistoryBean>?
 
     @Query("DELETE FROM history WHERE user_id = :userId")

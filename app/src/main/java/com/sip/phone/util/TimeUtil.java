@@ -1967,6 +1967,34 @@ public class TimeUtil {
         }
     }
 
+    public static String getFriendlyTimeByNow(final long millis) {
+        long now = System.currentTimeMillis();
+        long span = now - millis;
+        if (span < 0)
+        // U can read http://www.apihome.cn/api/java/Formatter.html to understand it.
+        {
+            return String.format("%tc", millis);
+        }
+        if (span < 1000) {
+            return "刚刚";
+        } else if (span < MIN) {
+            return String.format(Locale.getDefault(), "%d秒前", span / SEC);
+        } else if (span < HOUR) {
+            return String.format(Locale.getDefault(), "%d分钟前", span / MIN);
+        }
+        // 获取当天 00:00
+        long wee = getWeeOfToday();
+        if (millis >= wee) {
+            return String.format("今天%tR", millis);
+        } else if (millis >= wee - DAY) {
+            return String.format("昨天%tR", millis);
+        } else if (TimeUtil.getNowY2() == TimeUtil.getYear(millis)) {
+            return millis2String(millis,"MM-dd HH:mm");
+        } else {
+            return millis2String(millis, PATTEN_YMDSF);
+        }
+    }
+
     /**
      * 获取合适型与当前时间的差
      *
