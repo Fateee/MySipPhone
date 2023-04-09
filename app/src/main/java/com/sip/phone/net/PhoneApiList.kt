@@ -17,4 +17,7 @@ interface PhoneApiList {
 
     @POST("yestone/login")
     fun loginAndCheck(@Body map: Map<String, String>?) : Observable<Response<String>>
+
+    @POST("yestone/location")
+    fun location(@Body map: Map<String, String>?) : Observable<Response<String>>
 }

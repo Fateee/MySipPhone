@@ -205,6 +205,9 @@ class RecordFragment : Fragment() {
                 location?.let {
                     tipBuilder.append(" $it")
                 }
+                company?.let {
+                    tipBuilder.append(" $it")
+                }
                 recordTip?.text = tipBuilder.toString()
 
                 val dateTime = TimeUtil.getFriendlyTimeByNow(date)

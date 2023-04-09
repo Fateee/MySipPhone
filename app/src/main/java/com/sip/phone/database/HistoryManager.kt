@@ -101,6 +101,9 @@ object HistoryManager {
     fun updateLocation(location : String? = null) {
         historyBean?.location = location
     }
+    fun updateCompany(company : String? = null) {
+        historyBean?.company = company
+    }
     fun updateRecordType(type: Int) {
         historyBean?.type = type
     }

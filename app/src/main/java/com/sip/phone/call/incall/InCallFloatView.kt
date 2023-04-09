@@ -23,6 +23,7 @@ import com.sip.phone.app.MainApplication
 import com.sip.phone.call.calling.CallingFloatManager
 import com.sip.phone.constant.Constants
 import com.sip.phone.database.HistoryManager
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.ToastUtil
@@ -184,15 +185,31 @@ class InCallFloatView {
         tvCallNumber?.text = phoneNumber
         phoneNumber?.let {
             tvCallNumber?.text = it
-//            InCallActivity.getPhoneBelong(it, tvCallRemark)
             ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
                 override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
                     tvCallName?.text = contentCallLog?.displayName ?: ""
                     HistoryManager.createRecord(it,tvCallName?.text?.toString()?:"",Constants.INCOME_CALL)
+                    tvCallName?.visibility = if (tvCallName?.text.isNullOrEmpty()) {
+                        View.GONE
+                    } else {
+                        View.VISIBLE
+                    }
+                    HttpPhone.location(it,"in") { data->
+                        var str = ""
+                        if (!data?.location.isNullOrEmpty()) {
+                            str += data?.location
+                            HistoryManager.updateLocation(data?.location)
+                        }
+                        if (!data?.carrier.isNullOrEmpty()) {
+                            str += " ${data?.carrier}"
+                            HistoryManager.updateCompany(data?.carrier)
+                        }
+                        SdkUtil.mLocationCarrier = str
+                        tvCallRemark?.text = str
+                    }
                 }
             })
         }
-//        tvCallRemark?.text = city
     }
 
 

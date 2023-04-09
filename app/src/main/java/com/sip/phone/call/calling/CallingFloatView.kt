@@ -170,6 +170,12 @@ class CallingFloatView {
                         tvTimer?.text = "00:00"
                         tvCallNumber?.text = phone
                         tvCallName?.text = name
+                        tvCallName?.visibility = if (name.isNullOrEmpty()) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
+                        tvCallRemark?.text = SdkUtil.mLocationCarrier
                         windowManager?.addView(floatRootView, layoutParam)
                         hasShown = true
                         countTime()

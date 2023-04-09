@@ -12,6 +12,7 @@ import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.bean.AppInfoBean
 import com.sip.phone.BuildConfig
+import com.sip.phone.bean.LocateBean
 import com.sip.phone.constant.Constants
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.NetUtil
@@ -166,6 +167,58 @@ class HttpPhone private constructor() : NetworkApi(){
 
                 override fun onFailure(e: Throwable?) {
                     Log.i(TAG,"loginAndCheck onFailure")
+                }
+            })
+            if (!NetUtil.isNetworkConnected()) {
+                observer.onError(ExceptionHandler.handleException(ConnectException("network error")))
+                return
+            }
+            request.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(observer)
+        }
+
+        @JvmStatic
+        fun location(phone : String?=null, type : String?="out", callback: ((LocateBean.DataBean?) -> Unit)? = null) {
+            val body: HashMap<String, String> = HashMap()
+            val myPhone = MMKVUtil.decodeString(Constants.PHONE)
+            val time = (System.currentTimeMillis()/1000).toString()
+            var str = ""
+            if (!myPhone.isNullOrEmpty()) {
+                body["mobile"] = myPhone
+                str += "mobile=${myPhone}"
+            }
+            if (!phone.isNullOrEmpty()) {
+                body["phone"] = phone
+                str += "&phone=${phone}"
+            }
+            if (!type.isNullOrEmpty()) {
+                body["type"] = type
+                str += "&type=${type}"
+            }
+            body["timestamp"] = time
+            str += "&timestamp=${time}&key=$SIGN_KEY"
+            val md5Str = MD5Utils.md5(str).lowercase()
+            body["signature"] = md5Str
+            Log.i(TAG,"location body: $body")
+            Log.i(TAG,"location str: $str")
+            val request = getService(PhoneApiList::class.java).location(body)
+            val observer = SaObserver(null, object : MvvmNetworkObserver<Response<String>> {
+                override fun onSuccess(data: Response<String>, isFromCache: Boolean) {
+                    val ret = data.body()
+                    Log.i(TAG,"location onSuccess $ret")
+                    if (!ret.isNullOrEmpty()) {
+                        val bean = JSON.parseObject(ret, LocateBean::class.java)
+                        if (bean != null) {
+                            if (bean.code == 0) {
+                                callback?.invoke(bean.data)
+                            } else {
+                                ToastUtil.showToast(bean.message)
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(e: Throwable?) {
+                    Log.i(TAG,"location onFailure")
                 }
             })
             if (!NetUtil.isNetworkConnected()) {

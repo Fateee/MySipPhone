@@ -16,6 +16,7 @@ import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
 import com.sip.phone.database.HistoryManager
+import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
 import com.sip.phone.util.ToastUtil
 import me.jessyan.autosize.AutoSizeCompat
@@ -105,7 +106,25 @@ class OutCallFloatView {
                     if (floatRootView?.parent == null) {
                         tvCallNumber?.text = phone
                         tvCallName?.text = name
+                        tvCallName?.visibility = if (name.isNullOrEmpty()) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
+                        }
                         HistoryManager.createRecord(phone,name, Constants.OUT_CALL)
+                        HttpPhone.location(phone,"out") {
+                            var str = ""
+                            if (!it?.location.isNullOrEmpty()) {
+                                str += it?.location
+                                HistoryManager.updateLocation(it?.location)
+                            }
+                            if (!it?.carrier.isNullOrEmpty()) {
+                                str += " ${it?.carrier}"
+                                HistoryManager.updateCompany(it?.carrier)
+                            }
+                            SdkUtil.mLocationCarrier = str
+                            tvCallRemark?.text = str
+                        }
                         //RingManager.setMuteRing()
 //                        tvPhonePickUp?.visibility = if (callIn) View.VISIBLE else View.GONE
                         windowManager?.addView(floatRootView, layoutParam)
