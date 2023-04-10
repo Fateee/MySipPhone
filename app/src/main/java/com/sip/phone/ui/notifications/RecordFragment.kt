@@ -165,7 +165,7 @@ class RecordFragment : Fragment() {
                             tipBuilder.append("未接通")
                         }
                         phoneName?.setTextColor(context.getColor(R.color.c0C0C0C))
-                        statusIcon?.setImageResource(R.drawable.ic_record_incall)
+                        statusIcon?.setImageDrawable(null)
                     }
                     Constants.INCOME_CALL_CANCEL -> {
                         val time = if (incall_show_time > 0) incall_show_time else 1
