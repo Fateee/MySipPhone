@@ -65,6 +65,7 @@ class MainApplication : Application() {
         }
         initSipAudio()
         executeRetryJob()
+        ContactUtil.getAllContact()
     }
 
     private fun initSipAudio() {
