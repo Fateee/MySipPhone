@@ -83,7 +83,7 @@ class MainActivity : BaseActivity() {
         navView.setupWithNavController(navController)
 
         SdkUtil.checkMyPermissions(this) {
-            ContactUtil.getAllContact()
+//            ContactUtil.getAllContact()
         }
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)

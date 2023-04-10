@@ -96,7 +96,7 @@ class LoginActivity : BaseActivity() {
                 }
             }
         }
-        SdkUtil.checkMyPermissions(this)
+        SdkUtil.checkMyPermissions(this,true)
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)
     }

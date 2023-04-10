@@ -305,8 +305,12 @@ object SdkUtil {
     //自己挂断
     fun hangup() {
         isDecline = true
-        if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
-            Log.i(TAG, "endCall 电话挂断")
+        try {
+            if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
+                Log.i(TAG, "endCall 电话挂断")
+            }
+        } catch (e : Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -335,16 +339,22 @@ object SdkUtil {
 //        PermissionUtils.checkPermission(context, callback, *permissions)
 //    }
 
-    fun checkMyPermissions(context: Context?, okCallback: (() -> Unit)? = null) {
-        val permissions = arrayOf(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO,
-//            Manifest.permission.REORDER_TASKS,
-//            Manifest.permission.SYSTEM_ALERT_WINDOW,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.READ_PHONE_STATE
-        )
+    fun checkMyPermissions(context: Context?, isLoginView : Boolean = false, okCallback: (() -> Unit)? = null) {
+        val permissions = if (isLoginView) {//登录界面只申请两个权限，登录后再申请话筒，通讯录权限
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.READ_PHONE_STATE
+            )
+        } else {
+            arrayOf(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.READ_PHONE_STATE
+            )
+        }
         PermissionUtils.checkPermission(context, object : PermissionUtils.Callback() {
             override fun onGranted() {
                 super.onGranted()
