@@ -191,16 +191,12 @@ class RecordFragment : Fragment() {
                 }
 
                 if (name.isNullOrEmpty()) {
-                    ContactUtil.getContentCallLog(MainApplication.app, phone, object : ContactUtil.Callback {
-                        override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
-                            phoneName?.text = contentCallLog?.displayName ?: phone
-                            updateSearchWord(phoneName)
-                        }
-                    })
+                    val ret = ContactUtil.getContentCallLog(MainApplication.app, phone)
+                    phoneName?.text = ret?.displayName ?: phone
                 } else {
                     phoneName?.text = name
-                    updateSearchWord(phoneName)
                 }
+                updateSearchWord(phoneName)
 
                 location?.let {
                     tipBuilder.append(" $it")
