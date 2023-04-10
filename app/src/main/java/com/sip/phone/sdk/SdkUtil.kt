@@ -305,8 +305,12 @@ object SdkUtil {
     //自己挂断
     fun hangup() {
         isDecline = true
-        if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
-            Log.i(TAG, "endCall 电话挂断")
+        try {
+            if (EcSipLib.getInstance(MainApplication.app)?.hangupAll() == 0) {
+                Log.i(TAG, "endCall 电话挂断")
+            }
+        } catch (e : Exception) {
+            e.printStackTrace()
         }
     }
 
