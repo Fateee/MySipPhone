@@ -1,6 +1,7 @@
 package com.sip.phone.util
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -15,7 +16,8 @@ object ToastUtil {
     @SuppressLint("ShowToast")
     fun showToast(msg: String?, showX : Boolean = false) {
         msg?.let {
-            if (showX) {
+            val isHighOs = Build.VERSION.SDK_INT >= 29
+            if (showX || isHighOs) {
                 val toast = Toast.makeText(MainApplication.app, it, Toast.LENGTH_SHORT)
                 val layout = toast.view
                 if (layout is ViewGroup && layout.childCount > 0) {
