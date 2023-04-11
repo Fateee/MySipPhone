@@ -86,20 +86,20 @@ class ContactFragment : Fragment() {
                 sortListView!!.setSelection(position)
             }
         }
-        sortListView?.onItemClickListener =
-            OnItemClickListener { parent, view, position, id -> // 这里要利用adapter.getItem(position)来获取当前position所对应的对象
-                // Toast.makeText(getApplication(),
-                // ((SortModel)adapter.getItem(position)).getName(),
-                // Toast.LENGTH_SHORT).show();
-                hideKeyboard()
-                val name = (adapter?.getItem(position) as SortModel).name
-                val number = (adapter?.getItem(position) as SortModel).number?.replace("-", "")?.replace(" ", "")// SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
-                val bundle = Bundle()
-                bundle.putString("name", name)
-                bundle.putString("number", number)
-                findNavController(this).navigate(R.id.navigation_home, bundle)
-
-            }
+//        sortListView?.onItemClickListener =
+//            OnItemClickListener { parent, view, position, id -> // 这里要利用adapter.getItem(position)来获取当前position所对应的对象
+//                // Toast.makeText(getApplication(),
+//                // ((SortModel)adapter.getItem(position)).getName(),
+//                // Toast.LENGTH_SHORT).show();
+//                hideKeyboard()
+//                val name = (adapter?.getItem(position) as SortModel).name
+//                val number = (adapter?.getItem(position) as SortModel).number?.replace("-", "")?.replace(" ", "")// SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
+//                val bundle = Bundle()
+//                bundle.putString("name", name)
+//                bundle.putString("number", number)
+//                findNavController(this).navigate(R.id.navigation_home, bundle)
+//
+//            }
         if (SdkUtil.sourceDateList.isNullOrEmpty()) {
             SdkUtil.checkMyPermissions(context) {
                 ContactUtil.getAllContact {
@@ -115,6 +115,15 @@ class ContactFragment : Fragment() {
 
     private fun initListView() {
         adapter = SortAdapter(context, SdkUtil.sourceDateList)
+        adapter?.setOnItemClickListener { _, position ->
+            hideKeyboard()
+            val name = (adapter?.getItem(position) as SortModel).name
+            val number = (adapter?.getItem(position) as SortModel).number?.replace("-", "")?.replace(" ", "")// SdkUtil.callRecords?.get(name)?.replace("-", "")?.replace(" ", "")
+            val bundle = Bundle()
+            bundle.putString("name", name)
+            bundle.putString("number", number)
+            findNavController(this).navigate(R.id.navigation_home, bundle)
+        }
         sortListView?.setAdapter(adapter)
         mClearEditText = root?.findViewById(R.id.filter_edit) as ClearEditText
         mClearEditText?.setOnFocusChangeListener(OnFocusChangeListener { arg0, arg1 ->

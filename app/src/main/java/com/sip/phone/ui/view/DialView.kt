@@ -113,7 +113,7 @@ class DialView @JvmOverloads constructor(
                 try {
                     val item = clipboard.primaryClip?.getItemAt(0)
                     if (item != null) {
-                        mDialpadInput?.setText(item.text)
+                        setDialViewInput(item.text?.toString())
                     }
                 } catch (e : Exception) {
                     e.printStackTrace()

@@ -79,4 +79,16 @@ object ContactUtil {
             ContactAsyncTask(callBack).execute(0)
         }
     }
+
+    fun getContactName(number: String?): String? {
+        if (SdkUtil.sourceDateList.isNullOrEmpty()) {
+            return null
+        }
+        SdkUtil.sourceDateList?.forEach {
+            if (it != null && !it.number.isNullOrEmpty() && it.number.equals(number)) {
+                return it.name
+            }
+        }
+        return null
+    }
 }
