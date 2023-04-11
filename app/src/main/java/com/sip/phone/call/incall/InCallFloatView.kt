@@ -185,30 +185,30 @@ class InCallFloatView {
         tvCallNumber?.text = phoneNumber
         phoneNumber?.let {
             tvCallNumber?.text = it
-            ContactUtil.getContentCallLog(MainApplication.app, it, object : ContactUtil.Callback {
-                override fun onFinish(contentCallLog: ContactUtil.ContactInfo?) {
-                    tvCallName?.text = contentCallLog?.displayName ?: ""
-                    HistoryManager.createRecord(it,tvCallName?.text?.toString()?:"",Constants.INCOME_CALL)
-                    tvCallName?.visibility = if (tvCallName?.text.isNullOrEmpty()) {
-                        View.GONE
-                    } else {
-                        View.VISIBLE
-                    }
-                    HttpPhone.location(it,"in") { data->
-                        var str = ""
-                        if (!data?.location.isNullOrEmpty()) {
-                            str += data?.location
-                            HistoryManager.updateLocation(data?.location)
-                        }
-                        if (!data?.carrier.isNullOrEmpty()) {
-                            str += " ${data?.carrier}"
-                            HistoryManager.updateCompany(data?.carrier)
-                        }
-                        SdkUtil.mLocationCarrier = str
-                        tvCallRemark?.text = str
-                    }
+            var contactName = ContactUtil.getContentCallLog(MainApplication.app, it)?.displayName
+            if (contactName.isNullOrEmpty()) {
+                contactName = ContactUtil.getContactName(it) ?: ""
+            }
+            tvCallName?.text = contactName
+            HistoryManager.createRecord(it,contactName,Constants.INCOME_CALL)
+            tvCallName?.visibility = if (tvCallName?.text.isNullOrEmpty()) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+            HttpPhone.location(it,"in") { data->
+                var str = ""
+                if (!data?.location.isNullOrEmpty()) {
+                    str += data?.location
+                    HistoryManager.updateLocation(data?.location)
                 }
-            })
+                if (!data?.carrier.isNullOrEmpty()) {
+                    str += " ${data?.carrier}"
+                    HistoryManager.updateCompany(data?.carrier)
+                }
+                SdkUtil.mLocationCarrier = str
+                tvCallRemark?.text = str
+            }
         }
     }
 
