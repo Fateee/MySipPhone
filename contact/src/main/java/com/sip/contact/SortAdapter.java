@@ -23,7 +23,7 @@ import com.sip.contact.sortlist.SortModel;
 public class SortAdapter extends BaseAdapter implements SectionIndexer{
 	private List<SortModel> list = null;
 	private Context mContext;
-	
+	private OnItemClickListener mOnItemClickListener;
 	public SortAdapter(Context mContext, List<SortModel> list) {
 		this.mContext = mContext;
 		this.list = list;
@@ -86,6 +86,11 @@ public class SortAdapter extends BaseAdapter implements SectionIndexer{
 			viewHolder.tvPhone.setText(number);
 		}
 //		viewHolder.icon.setIconText(mContext,this.list.get(position).getName());
+		view.setOnClickListener(v->{
+			if (mOnItemClickListener != null) {
+				mOnItemClickListener.onItemClick(v,position);
+			}
+		});
 		view.setOnLongClickListener(v -> {
 			v.showContextMenu();
 			return true;
@@ -156,5 +161,13 @@ public class SortAdapter extends BaseAdapter implements SectionIndexer{
 	@Override
 	public Object[] getSections() {
 		return null;
+	}
+
+	public interface OnItemClickListener {
+		void onItemClick(View view, int position);
+	}
+
+	public void setOnItemClickListener(OnItemClickListener listener) {
+		mOnItemClickListener = listener;
 	}
 }
