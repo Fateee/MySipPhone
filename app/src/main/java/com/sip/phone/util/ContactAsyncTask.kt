@@ -12,10 +12,14 @@ import kotlin.collections.ArrayList
 
 class ContactAsyncTask(private val callBack : (()->Unit)? = null) : AsyncTask<Int?, Int?, Int>() {
 
+    companion object{
+        var mDoing = false
+    }
     private var characterParser: CharacterParser? = CharacterParser.getInstance()
     private var pinyinComparator: PinyinComparator? = PinyinComparator()
 
     override fun doInBackground(vararg arg0: Int?): Int {
+        mDoing = true
         var result = -1
         SdkUtil.callRecords = ConstactUtil.getAllCallRecords(MainApplication.app)
         SdkUtil.sourceDateList = ArrayList()
@@ -46,6 +50,7 @@ class ContactAsyncTask(private val callBack : (()->Unit)? = null) : AsyncTask<In
 
     override fun onPostExecute(result: Int) {
         super.onPostExecute(result)
+        mDoing = false
         if (result == 1) {
 //                val constact: MutableList<String> = ArrayList()
             callBack?.invoke()

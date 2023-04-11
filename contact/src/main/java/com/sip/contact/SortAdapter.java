@@ -3,6 +3,8 @@ package com.sip.contact;
 import java.util.List;
 
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -84,6 +86,20 @@ public class SortAdapter extends BaseAdapter implements SectionIndexer{
 			viewHolder.tvPhone.setText(number);
 		}
 //		viewHolder.icon.setIconText(mContext,this.list.get(position).getName());
+		view.setOnLongClickListener(v -> {
+			v.showContextMenu();
+			return true;
+		});
+		view.setOnCreateContextMenuListener((menu, v, menuInfo) -> menu.add(0, android.R.id.copy, 0, "复制").setOnMenuItemClickListener(item -> {
+			try {
+				ClipData clip = ClipData.newPlainText("text", number);
+				ClipboardManager clipboard = (ClipboardManager)mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+				clipboard.setPrimaryClip(clip);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return true;
+		}));
 		return view;
 
 	}

@@ -74,7 +74,8 @@ object ContactUtil {
     }
 
     fun getAllContact(callBack : (()->Unit)? = null) {
-        if (PermissionUtils.hasPermissions(MainApplication.app, Manifest.permission.READ_CONTACTS) && SdkUtil.sourceDateList.isNullOrEmpty()) {
+        if (PermissionUtils.hasPermissions(MainApplication.app, Manifest.permission.READ_CONTACTS) && SdkUtil.sourceDateList.isNullOrEmpty()
+            && !ContactAsyncTask.mDoing) {
             ContactAsyncTask(callBack).execute(0)
         }
     }

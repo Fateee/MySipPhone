@@ -82,12 +82,16 @@ class MainActivity : BaseActivity() {
 
         navView.setupWithNavController(navController)
 
-        SdkUtil.checkMyPermissions(this) {
-//            ContactUtil.getAllContact()
-        }
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)
         checkAppVersion()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        SdkUtil.checkMyPermissions(this) {
+            ContactUtil.getAllContact()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
