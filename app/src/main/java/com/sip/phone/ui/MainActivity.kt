@@ -16,6 +16,7 @@ import com.easycalltech.ecsdk.event.AccountRegisterEvent
 import com.ec.sdk.EcphoneSdk
 import com.ec.utils.MMKVUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.ludashi.framework.thread.ThreadUtil
 import com.sip.phone.R
 import com.sip.phone.app.MainApplication
 import com.sip.phone.constant.Constants
@@ -84,7 +85,7 @@ class MainActivity : BaseActivity() {
 
         OverlayUtil.initOverlayPermission(this)
         OverlayUtil.autoSelfLaunchPermission(this)
-        checkAppVersion()
+
     }
 
     override fun onResume() {
@@ -92,6 +93,7 @@ class MainActivity : BaseActivity() {
         SdkUtil.checkMyPermissions(this) {
             ContactUtil.getAllContact()
         }
+        checkAppVersion()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -192,6 +194,11 @@ class MainActivity : BaseActivity() {
                         quitLogin()
                     }
                 }
+                1,2,3 -> {
+                    //123 取消注册sip&退出登录
+                    quitLogin()
+                    ToastUtil.showToast(it.message)
+                }
             }
         }
     }
@@ -200,7 +207,18 @@ class MainActivity : BaseActivity() {
         SdkUtil.channelId = null
         SdkUtil.publicKey = null
         MMKVUtil.encode(Constants.PHONE,"")
-        EcphoneSdk.unRegister()
+        try {
+            EcphoneSdk.unRegister()
+        } catch (e : Exception) {
+            e.printStackTrace()
+            try {
+                ThreadUtil.runOnMainThread({
+                    EcphoneSdk.unRegister()
+                },5000)
+            } catch (e : Exception) {
+                e.printStackTrace()
+            }
+        }
         LoginActivity.startActivity()
         finish()
     }
