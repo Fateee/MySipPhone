@@ -39,14 +39,16 @@ class HttpPhone private constructor() : NetworkApi(){
 
 
         @JvmStatic
-        fun authPhone(phone : String, needNetwork : Boolean = true, okCallback: (() -> Unit)? = null ) {
+        fun authPhone(phone : String, needNetwork : Boolean = true, okCallback: ((Int,String?) -> Unit)? = null ) {
             val body: HashMap<String, String> = HashMap()
             val myPhone = MMKVUtil.decodeString(Constants.PHONE)
             val time = (System.currentTimeMillis()/1000).toString()
             body["caller"] = myPhone?:""
             body["callee"] = phone
+            val uuid = DataUtils.getMD5DeviceId(MainApplication.app)
+            body["uuid"] = uuid
             body["timestamp"] = time
-            val str = "caller=$myPhone&callee=$phone&timestamp=$time&key=$SIGN_KEY"
+            val str = "caller=$myPhone&callee=$phone&uuid=${uuid}&timestamp=$time&key=$SIGN_KEY"
             val md5Str = MD5Utils.md5(str).lowercase()
             body["signature"] = md5Str
             val request = getService(PhoneApiList::class.java).authPhoneNum(body)
@@ -57,11 +59,9 @@ class HttpPhone private constructor() : NetworkApi(){
                     //{"msg":"认证成功","retCode":0,"signature":"A3CFC018141DC342E18B37DF346635B8","timestamp":1679997410}
                     if (!ret.isNullOrEmpty()) {
                         val json = JSONObject(ret)
-                        if (json.optInt("code",-100) == 0) {
-                            okCallback?.invoke()
-                        } else {
-                            ToastUtil.showToast(json.optString("message"))
-                        }
+                        val code = json.optInt("code",-100)
+                        val msg = json.optString("message")
+                        okCallback?.invoke(code,msg)
                     }
                 }
 

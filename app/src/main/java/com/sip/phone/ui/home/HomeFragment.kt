@@ -25,6 +25,7 @@ import com.sip.phone.database.HistoryBean
 import com.sip.phone.database.HistoryManager
 import com.sip.phone.net.HttpPhone
 import com.sip.phone.sdk.SdkUtil
+import com.sip.phone.ui.MainActivity
 import com.sip.phone.ui.listview.customview.BaseCustomView
 import com.sip.phone.ui.listview.recyclerview.BaseListAdapter
 import com.sip.phone.ui.listview.recyclerview.OnItemClickCallback
@@ -33,6 +34,7 @@ import com.sip.phone.ui.view.DialView
 import com.sip.phone.util.ContactUtil
 import com.sip.phone.util.DateUtils
 import com.sip.phone.util.TimeUtil
+import com.sip.phone.util.ToastUtil
 import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.Serializable
 import kotlin.collections.ArrayList
@@ -76,9 +78,21 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCall(phone: String, name : String) {
-                HttpPhone.authPhone(phone) {
-                    SdkUtil.checkMyPermissions(context) {
-                        SdkUtil.makeCall(phone, name)
+                HttpPhone.authPhone(phone) { code,msg->
+                    when(code) {
+                        0 -> {
+                            SdkUtil.checkMyPermissions(context) {
+                                SdkUtil.makeCall(phone, name)
+                            }
+                        }
+                        1,2,3 -> {
+                            //123 取消注册sip&退出登录
+                            if (activity is MainActivity) {
+                                (activity as MainActivity).quitLogin()
+                            }
+                            ToastUtil.showToast(msg)
+                        }
+                        else -> ToastUtil.showToast(msg)
                     }
                 }
             }

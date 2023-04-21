@@ -196,7 +196,7 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun quitLogin() {
+    fun quitLogin() {
         SdkUtil.channelId = null
         SdkUtil.publicKey = null
         MMKVUtil.encode(Constants.PHONE,"")
