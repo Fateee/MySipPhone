@@ -95,6 +95,10 @@ object SdkUtil {
 //                        intent.putExtra("phone",phone)
 //                        startActivity(intent)
                     }
+                    if (TextUtils.equals(t.retcode, "0")) {
+                        Log.e(TAG,"即将调用init()方法 开始注册----"+t.encryptedinfo)
+                        MMKVUtil.encode(Constants.ENCRYPT_INFO_KEY, t.encryptedinfo)
+                    }
                     okCallback?.invoke(t.retcode)
                     ToastUtil.showToast("${t.retmsg} ")
                 }
@@ -222,6 +226,8 @@ object SdkUtil {
             MMKVUtil.encode(Constants.HOST, event.sipip)
             MMKVUtil.encode(Constants.PORT, event.sipPort)
             MMKVUtil.encode(Constants.DOMAIN, event.doMain)
+            val locationResult = event.sipip+":"+event.sipPort+":"+event.sipProxyIP+":"+event.sipProxyPort+":"+event.doMain
+            MMKVUtil.encode(Constants.LOCATION_RESULT_KEY, locationResult)
         }
         EcphoneSdk.register(event.sipip, event.sipPort, event.doMain)
         Log.i(TAG, "register sipip: ${EcphoneSdk.ecSdk?.mSIPIP} sipport: ${EcphoneSdk.ecSdk?.mSIPPort} domain: ${EcphoneSdk.ecSdk?.mDoMain}")

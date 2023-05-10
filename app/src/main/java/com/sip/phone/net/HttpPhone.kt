@@ -118,7 +118,8 @@ class HttpPhone private constructor() : NetworkApi(){
         }
 
         @JvmStatic
-        fun loginAndCheck(mobile : String?=null, password : String?=null, callback: ((AppInfoBean) -> Unit)? = null) {
+        fun loginAndCheck(mobile : String?=null, password : String?=null, account : String?="",
+                          location : String?="" ,callback: ((AppInfoBean) -> Unit)? = null) {
             val body: HashMap<String, String> = HashMap()
             val uuid = DataUtils.getMD5DeviceId(MainApplication.app)
             val time = (System.currentTimeMillis()/1000).toString()
@@ -134,13 +135,23 @@ class HttpPhone private constructor() : NetworkApi(){
                 str += "&password=${password}"
             }
             body["uuid"] = uuid
-            body["appName"] = appName
-            body["appVer"] = appVer
-            body["timestamp"] = time
-            if (str.isNotEmpty()) {
-                str += "&"
+            str += "&uuid=${uuid}"
+            if (account != null) {
+                body["account"] = account
+                str += "&account=${account}"
             }
-            str += "uuid=${uuid}&appName=${appName}&appVer=${appVer}&timestamp=${time}&key=$SIGN_KEY"
+            if (location != null) {
+                body["location"] = location
+                str += "&location=${location}"
+            }
+            body["appName"] = appName
+            str += "&appName=${appName}"
+            body["appVer"] = appVer
+            str += "&appVer=${appVer}"
+            body["timestamp"] = time
+            str += "&timestamp=${time}"
+
+            str += "&key=$SIGN_KEY"
             val md5Str = MD5Utils.md5(str).lowercase()
             body["signature"] = md5Str
             Log.i(TAG,"loginAndCheck body: $body")

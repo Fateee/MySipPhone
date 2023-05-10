@@ -181,7 +181,9 @@ class MainActivity : BaseActivity() {
 
     private fun checkAppVersion() {
         val phoneCached = MMKVUtil.decodeString(Constants.PHONE)
-        HttpPhone.loginAndCheck(phoneCached,"") {
+        val account = MMKVUtil.decodeString(Constants.ENCRYPT_INFO_KEY) ?:""
+        val location = MMKVUtil.decodeString(Constants.LOCATION_RESULT_KEY) ?:""
+        HttpPhone.loginAndCheck(phoneCached,"",account,location) {
             when(it.code) {
                 0,10 -> {
                     if (10 == it.code) {

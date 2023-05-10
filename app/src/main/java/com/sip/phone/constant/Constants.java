@@ -72,4 +72,7 @@ public class Constants {
     public static final int INCOME_CALL = 2;
     public static final int INCOME_CALL_CANCEL = 3;
     public static final int INCOME_CALL_REJECT = 4;
+
+    public static final String ENCRYPT_INFO_KEY = "ENCRYPT_INFO_KEY";
+    public static final String LOCATION_RESULT_KEY = "LOCATION_RESULT_KEY";
 }
