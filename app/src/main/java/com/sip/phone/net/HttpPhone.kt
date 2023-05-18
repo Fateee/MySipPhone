@@ -29,7 +29,8 @@ class HttpPhone private constructor() : NetworkApi(){
     companion object {
         var SIGN_KEY = "828b739f7c7b2cc22948f35991f01cdc"
         private const val TAG = "HttpPhone_hy"
-        const val STATISTICS_HOST = "http://fastapi.v6.army:8089/"
+//        const val STATISTICS_HOST = "http://fastapi.v6.army:8089/"
+        const val STATISTICS_HOST = "https://entry.v6.army:8089"
         val instance = Holder.holder
 //        private val deviceId : String? = PushServiceFactory.getCloudPushService().deviceId
 
