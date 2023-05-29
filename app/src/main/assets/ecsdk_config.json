@@ -25,10 +25,10 @@
     "dtmfType": 2
   },
   "esapi": {
-    "location": "http://118.122.231.29:20180/pbxInterface/extRegister",
-    "deptList": "http://118.122.231.29:20180/pbxInterface/extOrg",
-    "contactList": "http://118.122.231.29:20180/pbxInterface/orgList",
-    "log": "http://118.122.231.29:20180/pbxInterface/logSend",
+    "location": "http://118.122.233.53:3135/pbxInterface/extRegister",
+    "deptList": "http://118.122.233.53:3135/pbxInterface/extOrg",
+    "contactList": "http://118.122.233.53:3135/pbxInterface/orgList",
+    "log": "http://118.122.233.53:3135/pbxInterface/logSend",
     "key": "1vF3r3Uo6al0u2OX",
     "iv": "bfGuA9cL6i0aA9C2",
     "timeout": 6000
