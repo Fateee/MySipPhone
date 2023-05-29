@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
 }
-
+def appName = "云闪通"
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -13,9 +13,10 @@ android {
         applicationId "com.sip.phone"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 13
-        versionName "1.3"
-
+        versionCode 14
+        versionName "1.4"
+        // 设置应用程序名称
+        resValue "string", "appName", appName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'arm64-v8a'//,'armeabi-v7a'//,'arm64-v8a'
@@ -76,6 +77,16 @@ android {
     buildFeatures{
         dataBinding = true
     }
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            // 获取应用程序版本号
+            def versionName = variant.versionName
+
+            // 设置输出APK的命名规则
+            outputFileName = "${appName}_${versionName}.apk"
+        }
+    }
+
 }
 
 dependencies {

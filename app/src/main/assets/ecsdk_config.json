@@ -20,8 +20,8 @@
     "viaRewriteUse": 1,
     "srtpUse": 1,
     "sndCloseTime": 0,
-    "registerHeart": 40,
-    "registerTimeout": 40,
+    "registerHeart": 180,
+    "registerTimeout": 180,
     "dtmfType": 2
   },
   "esapi": {
