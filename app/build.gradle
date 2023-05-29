@@ -13,8 +13,8 @@ android {
         applicationId "com.sip.phone"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 14
-        versionName "1.4"
+        versionCode 15
+        versionName "1.5"
         // 设置应用程序名称
         resValue "string", "appName", appName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
