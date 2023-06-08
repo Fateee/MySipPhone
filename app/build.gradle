@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
 }
-def appName = "云闪通"
+def appName = "大唐房屋"
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
